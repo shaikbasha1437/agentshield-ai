@@ -25,6 +25,10 @@ inputs:
     description: Allowed drop against the baseline before it counts as a regression.
     required: false
     default: '0.02'
+  fail-on-gate:
+    description: Set to 'false' to report a failed gate in the outputs and summary without failing the step.
+    required: false
+    default: 'true'
   report-dir:
     description: Folder for report.json, report.md and report.html.
     required: false

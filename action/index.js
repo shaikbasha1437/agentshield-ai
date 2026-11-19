@@ -16,6 +16,7 @@ export function run(env = process.env, cwd = env.GITHUB_WORKSPACE || process.cwd
   if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, ['passed=' + (code === 0), 'stop-rate=' + report.attack.stopped.p.toFixed(4), 'false-positive-rate=' + report.benign.falsePositive.p.toFixed(4), 'report=' + path.join(dir, 'report.json')].join('\n') + '\n');
   if (env.GITHUB_STEP_SUMMARY) fs.appendFileSync(env.GITHUB_STEP_SUMMARY, fs.readFileSync(path.join(dir, 'report.md'), 'utf8') + '\n');
   if (code !== 0) for (const l of lines.filter((x) => x.startsWith('  - '))) console.log('::error title=Guardrails regression::' + l.slice(4));
+  if (code === 1 && input('fail-on-gate').toLowerCase() === 'false') { console.log('::warning::The gate failed, but fail-on-gate is false.'); return 0; }
   return code;
 }
 if (process.env.GITHUB_ACTIONS || process.env.AGENTSHIELD_ACTION_RUN) process.exitCode = run();

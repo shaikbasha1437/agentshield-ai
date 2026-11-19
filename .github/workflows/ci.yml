@@ -1,0 +1,53 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm test
+  guardrails-gate:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v5
+      - name: Benchmark the balanced policy against its baseline
+        id: gate
+        uses: ./action
+        with:
+          policy: examples/policy.balanced.yaml
+          baseline: examples/baseline.balanced.json
+          min-stop-rate: '0.8'
+          max-false-positive-rate: '0.1'
+          report-dir: agentshield-report
+      - name: A weakened policy is reported as a regression (fail-on-gate false keeps this step green)
+        id: regressed
+        uses: ./action
+        with:
+          policy: examples/policy.regressed.yaml
+          baseline: examples/baseline.balanced.json
+          report-dir: agentshield-report-regressed
+          fail-on-gate: 'false'
+      - name: Check the regression was caught and the CLI exits 1
+        run: |
+          test "${{ steps.gate.outputs.passed }}" = "true"
+          test "${{ steps.regressed.outputs.passed }}" = "false"
+          grep -q "dropped" agentshield-report-regressed/report.md
+          set +e; node cli/agentshield.js bench --policy examples/policy.regressed.yaml --baseline examples/baseline.balanced.json > /dev/null; code=$?; set -e
+          test "$code" = "1"
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: agentshield-report
+          path: |
+            agentshield-report
+            agentshield-report-regressed
