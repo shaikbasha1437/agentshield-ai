@@ -15,7 +15,7 @@ What was checked before release, and how. Times are America/Chicago, 2026-11-19.
 | `test/proxy.test.js` | The proxy against a **mocked local upstream**: forwarding, injection blocked before upstream, redaction, risky tool calls held, single-use approvals, admin auth (401/403), kill switch, upstream errors passed through, server key overriding the caller's key, and keys absent from the audit log. |
 | `test/bench.test.js` | Suite shape (257 cases, unique ids, only `.example` hosts); Wilson, percentile and exact McNemar values; balanced thresholds; preset ordering; the gate catches the regressed policy and the committed baseline is current; CLI exit codes; the Action entry point (outputs, summary, HTML report). |
 | `test/app.test.js` | All 16 playground scenarios with sql.js: attacks do harm with the guard off and none with it on; benign tasks are harmless and unblocked either way. Also: approval and diff for the large refund, monitor mode, the kill switch, the live loop with a mocked model, provider request builders (including the Anthropic browser header), the service-worker file list, the manifest, and the lib package shape. |
-| `test/hygiene.test.js` | No numbering labels, no visa wording, no real-looking keys and no non-`.example` addresses in any public file. |
+| `test/hygiene.test.js` | No numbering labels, no restricted wording, no real-looking keys and no non-`.example` addresses in any public file. |
 
 ## Benchmark statistics cross-checked in Python
 
