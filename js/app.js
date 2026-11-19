@@ -572,7 +572,7 @@ async function init() {
   if (!state.policies.some((p) => p.id === state.activePolicyId)) state.activePolicyId = state.policies[0].id;
   rebuildGuard(); renderAll(); await STORE.saveNow(state); renderTop();
   document.documentElement.dataset.ready = '1';
-  checkShareLink();
+  checkShareLink(); addEventListener('hashchange', checkShareLink);
   sqlLoader().catch(() => null);
 }
 window.AgentShield = { get state() { return state; }, get guard() { return guard; }, get settings() { return settings; }, L, flush: () => STORE.flush() };
