@@ -1,0 +1,4 @@
+node_modules/
+agentshield-report/
+*.log
+.DS_Store

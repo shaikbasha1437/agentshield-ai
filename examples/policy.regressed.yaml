@@ -1,0 +1,67 @@
+# A deliberately weakened copy of the balanced policy, used in CI to prove the gate catches regressions.
+# Changes: higher block threshold, no quarantine, hidden text kept, shell allowed without limits, no taint checks.
+version: 1
+name: regressed
+description: Sensible default for a general agent.
+mode: enforce          # enforce | monitor (log only) | dry-run (decide, never execute)
+killSwitch: false
+input:
+  injection: { block: 0.9, flag: 0.6 }
+  classifier: { enabled: false, threshold: 0.8 }
+  maxLength: 20000
+untrusted:
+  spotlight: delimit   # wrap outside content in labelled boundaries
+  quarantine: false    # remove instruction-like sentences from outside content
+  hiddenText: keep     # drop text a person would not see (comments, CSS-hidden, white text)
+  flag: 0.4
+output:
+  redact: [private_key, api_key, jwt, secret_assignment, card, ssn, email, phone, iban]
+  allowEmails: ["*@northwind.example"]
+  links: { allow: ["northwind.example", "*.northwind.example"], action: flag }
+  exfiltration: block
+  leaks: block
+tools:
+  default: require-approval
+  rateLimit: { max: 30, per: 60 }
+  rules:
+    read_file:
+      kind: file-read
+      paths: ["/workspace/**", "/docs/**"]
+      denyPaths: ["**/.env", "**/.ssh/**", "/secrets/**", "**/*.pem"]
+    list_files:
+      kind: file-read
+      paths: ["/workspace/**", "/docs/**"]
+    search_kb:
+      kind: search
+    write_file:
+      kind: file-write
+      paths: ["/workspace/**"]
+    run_sql:
+      kind: sql
+      sql: read-only
+    fetch_url:
+      kind: web
+      domains: ["*.example"]
+    draft_email:
+      kind: email-draft
+    send_email:
+      kind: email
+      recipients: ["*@northwind.example"]
+      unknownRecipient: require-approval
+    refund:
+      kind: payment
+      maxAmount: 100
+      hardLimit: 1000
+      overLimit: require-approval
+      budget: { amount: 300, per: session }
+    run_shell:
+      kind: shell
+      commands: [ls, cat, grep, wc, head, tail, pwd, echo, "git status", "git log", "git diff", "npm test", df, du]
+      otherCommands: allow
+      dangerous: require-approval
+    create_ticket:
+      kind: ticket
+taint:
+  untrustedArgs: allow
+  flaggedContext: allow
+audit: { enabled: true, redact: true }

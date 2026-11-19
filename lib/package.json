@@ -1,0 +1,14 @@
+{
+  "name": "agentshield-guard",
+  "version": "0.1.0",
+  "description": "Guardrails for LLM agents: prompt-injection and jailbreak detection, untrusted-content spotlighting, output redaction, a tool/action firewall with approvals, taint tracking and a hash-chained audit log. Zero dependencies.",
+  "type": "module",
+  "main": "./index.js",
+  "exports": { ".": "./index.js", "./guard": "./guard.js", "./injection": "./injection.js", "./output": "./output.js", "./firewall": "./firewall.js", "./policy": "./policy.js", "./presets": "./presets.js", "./audit": "./audit.js" },
+  "files": ["*.js", "README.md"],
+  "sideEffects": false,
+  "keywords": ["llm", "guardrails", "prompt-injection", "agents", "security", "mcp", "openai", "anthropic"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/shaikbasha1437/agentshield-ai.git", "directory": "lib" },
+  "engines": { "node": ">=18" }
+}

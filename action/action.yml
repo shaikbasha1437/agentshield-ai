@@ -1,0 +1,43 @@
+name: AgentShield guardrails benchmark
+description: Runs the AgentShield attack and benign suite against your guardrails policy and fails the job on regressions.
+author: shaikbasha1437
+branding:
+  icon: shield
+  color: blue
+inputs:
+  policy:
+    description: Path to a policy file (YAML or JSON), or a preset name such as balanced.
+    required: false
+    default: balanced
+  baseline:
+    description: Optional path to a previous report JSON. The job fails if the stop rate drops, false positives rise, or a case the baseline stopped now gets through.
+    required: false
+    default: ''
+  min-stop-rate:
+    description: Optional minimum share of attacks stopped, from 0 to 1.
+    required: false
+    default: ''
+  max-false-positive-rate:
+    description: Optional maximum share of benign cases blocked, from 0 to 1.
+    required: false
+    default: ''
+  tolerance:
+    description: Allowed drop against the baseline before it counts as a regression.
+    required: false
+    default: '0.02'
+  report-dir:
+    description: Folder for report.json, report.md and report.html.
+    required: false
+    default: agentshield-report
+outputs:
+  passed:
+    description: '"true" when the gate passed.'
+  stop-rate:
+    description: Share of attacks stopped.
+  false-positive-rate:
+    description: Share of benign cases blocked.
+  report:
+    description: Path to report.json.
+runs:
+  using: node24
+  main: index.js
