@@ -2,3 +2,16 @@ node_modules/
 agentshield-report/
 *.log
 .DS_Store
+paper/arxiv/
+paper/agentshield-arxiv.tar.gz
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.blg
+paper/*.bbl
+python/dist/
+python/build/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+lib/*.tgz

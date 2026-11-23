@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentshield-guardrails"
+version = "0.2.0"
+description = "Explainable guardrails for LLM agents: prompt-injection detection, hidden-text stripping, output redaction and a policy firewall for tool calls. Pure Python, same rules and verdicts as the JavaScript package."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Basha Shaik" }]
+keywords = ["llm", "guardrails", "prompt-injection", "agents", "security", "jailbreak", "ai-safety", "mcp"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Security",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+yaml = ["pyyaml>=6"]
+test = ["pytest>=7", "pyyaml>=6"]
+
+[project.urls]
+Homepage = "https://github.com/shaikbasha1437/agentshield-ai"
+Source = "https://github.com/shaikbasha1437/agentshield-ai/tree/main/python"
+Issues = "https://github.com/shaikbasha1437/agentshield-ai/issues"
+Changelog = "https://github.com/shaikbasha1437/agentshield-ai/blob/main/python/CHANGELOG.md"
+Demo = "https://shaikbasha1437.github.io/agentshield-ai/"
+
+[project.scripts]
+agentshield-guardrails = "agentshield_guardrails.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentshield_guardrails"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/agentshield_guardrails", "tests", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

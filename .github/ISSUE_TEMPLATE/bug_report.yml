@@ -1,0 +1,23 @@
+name: Bug report
+description: Something in the library, app, CLI, proxy or Action does not work as documented.
+labels: [bug]
+body:
+  - type: dropdown
+    id: part
+    attributes:
+      label: Part
+      options: [npm package, Python package, web app, CLI or Action, proxy, benchmark or dataset, paper or docs]
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Version or commit, placeholder: "0.2.0 or abc1234" }
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The smallest input and policy that show the problem. Use fake data only, and never paste real keys.
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: Expected and actual behaviour }
+    validations: { required: true }

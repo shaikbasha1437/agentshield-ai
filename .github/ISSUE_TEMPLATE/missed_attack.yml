@@ -1,0 +1,31 @@
+name: Missed attack or false positive
+description: An attack the guard lets through, or harmless text that it blocks.
+labels: [detection]
+body:
+  - type: dropdown
+    id: type
+    attributes: { label: Type, options: [Missed attack, False positive] }
+    validations: { required: true }
+  - type: dropdown
+    id: stage
+    attributes: { label: Stage, options: [input, conversation, untrusted content, output, tool call] }
+    validations: { required: true }
+  - type: input
+    id: preset
+    attributes: { label: Policy or preset, placeholder: balanced }
+  - type: textarea
+    id: text
+    attributes:
+      label: Text or tool call
+      description: Use fictional names and .example domains. Never include real secrets or personal data.
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: why
+    attributes: { label: Why it should be stopped (or allowed) }
+  - type: checkboxes
+    id: license
+    attributes:
+      label: Licence
+      options:
+        - label: I agree that this text may be added to the benchmark under CC-BY-4.0.

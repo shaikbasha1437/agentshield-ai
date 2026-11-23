@@ -1,0 +1,27 @@
+name: New benchmark case
+description: Propose a labelled case for AgentShield Bench.
+labels: [dataset]
+body:
+  - type: dropdown
+    id: kind
+    attributes: { label: Kind, options: [attack, benign] }
+    validations: { required: true }
+  - type: input
+    id: category
+    attributes: { label: Category, description: "One of the categories in dataset/README.md, or propose a new one." }
+    validations: { required: true }
+  - type: dropdown
+    id: stage
+    attributes: { label: Stage, options: [input, conversation, untrusted, output, tool] }
+    validations: { required: true }
+  - type: textarea
+    id: case
+    attributes: { label: Case, description: "The text, content or tool call, plus a one-line note on what it tests.", render: text }
+    validations: { required: true }
+  - type: checkboxes
+    id: license
+    attributes:
+      label: Licence
+      options:
+        - label: I wrote this case, it contains no real personal data, and I release it under CC-BY-4.0.
+          required: true

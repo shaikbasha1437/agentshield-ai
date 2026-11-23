@@ -1,0 +1,35 @@
+name: Release npm package
+# Runs only when a tag like js-v0.2.0 is pushed. Nothing is published from branches or pull requests.
+on:
+  push:
+    tags: ['js-v*']
+permissions:
+  contents: read
+  id-token: write   # needed for npm provenance and trusted publishing (OIDC)
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm test
+      - name: Tag matches lib/package.json version
+        run: test "js-v$(node -p "require('./lib/package.json').version")" = "${GITHUB_REF_NAME}"
+      - name: Publish with an npm token (if the NPM_TOKEN secret is set)
+        if: env.NPM_TOKEN != ''
+        working-directory: lib
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
+      - name: Publish with npm trusted publishing (no token)
+        if: env.NPM_TOKEN == ''
+        working-directory: lib
+        run: |
+          npm install -g npm@latest
+          npm publish --provenance --access public

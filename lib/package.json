@@ -1,14 +1,29 @@
 {
-  "name": "agentshield-guard",
-  "version": "0.1.0",
-  "description": "Guardrails for LLM agents: prompt-injection and jailbreak detection, untrusted-content spotlighting, output redaction, a tool/action firewall with approvals, taint tracking and a hash-chained audit log. Zero dependencies.",
+  "name": "agentshield-guardrails",
+  "version": "0.2.0",
+  "description": "Explainable guardrails for LLM agents: prompt-injection and jailbreak detection, untrusted-content spotlighting, output redaction, a tool/action firewall with approvals, taint tracking and a hash-chained audit log. Zero dependencies.",
   "type": "module",
   "main": "./index.js",
-  "exports": { ".": "./index.js", "./guard": "./guard.js", "./injection": "./injection.js", "./output": "./output.js", "./firewall": "./firewall.js", "./policy": "./policy.js", "./presets": "./presets.js", "./audit": "./audit.js" },
-  "files": ["*.js", "README.md"],
+  "types": "./index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "default": "./index.js" },
+    "./guard": "./guard.js",
+    "./injection": "./injection.js",
+    "./output": "./output.js",
+    "./firewall": "./firewall.js",
+    "./policy": "./policy.js",
+    "./presets": "./presets.js",
+    "./audit": "./audit.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["*.js", "index.d.ts", "README.md", "CHANGELOG.md", "LICENSE"],
   "sideEffects": false,
-  "keywords": ["llm", "guardrails", "prompt-injection", "agents", "security", "mcp", "openai", "anthropic"],
+  "keywords": ["llm", "guardrails", "prompt-injection", "jailbreak", "agents", "ai-security", "mcp", "tool-calling", "openai", "anthropic"],
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/shaikbasha1437/agentshield-ai.git", "directory": "lib" },
-  "engines": { "node": ">=18" }
+  "author": "Basha Shaik",
+  "homepage": "https://github.com/shaikbasha1437/agentshield-ai/tree/main/lib#readme",
+  "bugs": { "url": "https://github.com/shaikbasha1437/agentshield-ai/issues" },
+  "repository": { "type": "git", "url": "git+https://github.com/shaikbasha1437/agentshield-ai.git", "directory": "lib" },
+  "engines": { "node": ">=18" },
+  "publishConfig": { "access": "public", "provenance": true }
 }

@@ -63,6 +63,6 @@ test('static app: eyebrow, service worker covers every module, no external scrip
 });
 test('lib package is publishable in shape but marked as not published from CI', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/package.json'), 'utf8')); assert.equal(pkg.type, 'module'); assert.ok(pkg.exports['.']);
-  for (const f of Object.values(pkg.exports)) assert.ok(fs.existsSync(path.join(ROOT, 'lib', f)), f);
+  for (const t of Object.values(pkg.exports)) { const f = typeof t === 'string' ? t : t.default; assert.ok(fs.existsSync(path.join(ROOT, 'lib', f)), f); }
   const root = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); assert.equal(root.private, true);
 });

@@ -476,9 +476,11 @@ function openTamper() {
 }
 
 /* ---------------- library docs ---------------- */
-const LIB_DOCS = `<div class="panel lib"><h2>Use the guard in your own agent</h2><p>The library in <code>lib/</code> is plain ES modules with no dependencies, so it runs in Node 18+, Deno, Bun, workers and browsers. It is not published to npm; copy the folder or install from the repository:</p><pre class="out">npm install github:shaikbasha1437/agentshield-ai
+const LIB_DOCS = `<div class="panel lib"><h2>Use the guard in your own agent</h2><p>The library in <code>lib/</code> is plain ES modules with no dependencies, so it runs in Node 18+, Deno, Bun, workers and browsers. It is packaged as <code>agentshield-guardrails</code> for npm and PyPI (the Python port gives identical verdicts on the benchmark). Until the first release is on the registries, install from the repository:</p><pre class="out">npm install github:shaikbasha1437/agentshield-ai
 // or copy lib/ into your project
-import { createGuard, PRESETS } from 'agentshield-ai/lib/index.js';</pre>
+import { createGuard, PRESETS } from 'agentshield-ai/lib/index.js';
+// after the npm release: import { createGuard, PRESETS } from 'agentshield-guardrails';
+// Python: pip install agentshield-guardrails, then from agentshield_guardrails import Guard</pre>
 <h3>Core calls</h3><pre class="out">const guard = createGuard({ policy: PRESETS.balanced.yaml, systemPrompt });
 const d = guard.checkInput(userText);          // { verdict: 'block' | 'flag' | 'allow', score, hits: [{ rule, why, ... }] }
 const page = guard.ingest(html, { source: 'web', label: url });   // page.wrapped is safe to show the model

@@ -1,0 +1,236 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\setlist{itemsep=0pt,topsep=2pt,parsep=0pt}
+
+\title{Stage-Aware, Explainable Guardrails for Tool-Using LLM Agents:\\An Open Rule-Based Library and a Small Labelled Benchmark}
+\author{Basha Shaik\\Independent Researcher\\\small\url{https://github.com/shaikbasha1437/agentshield-ai}}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Agents built on large language models (LLMs) read untrusted text and act on it with tools. As a result, a single injected sentence in a web page, an email or a tool result can turn into a payment, a deleted file or a leaked secret. We describe \emph{AgentShield}, an open-source guardrail library with identical JavaScript and Python implementations. It places deterministic, explainable checks at the four points where an agent pipeline handles text:
+\begin{itemize}
+\item \textbf{the user's input}: an injection detector with a normalisation layer;
+\item \textbf{untrusted content}: spotlighting, hidden-text stripping and quarantine;
+\item \textbf{the model's output}: redaction, leak and exfiltration checks;
+\item \textbf{tool calls}: a policy firewall with human approval, rate and spend limits, and taint tracking from untrusted content to tool arguments.
+\end{itemize}
+Every decision names the rules that fired. We also release \emph{AgentShield Bench}, a stage-labelled set of 257 hand-written cases (191 attacks in 14 categories and 66 benign near-misses), together with a reproducible evaluation script. On this benchmark the default policy stops 87.4\% of attacks (95\% CI 82.0--91.4) with a 4.5\% false-positive rate (1.6--12.5). A naive keyword filter stops 12.0\%, and AgentShield's own detector without the stage-specific layers stops 54.5\%. Because the same author wrote the rules and the cases, these numbers measure coverage of known patterns, not robustness to new or adaptive attacks. We state the limitations in detail.
+\end{abstract}
+
+\section{Motivation}
+Prompt injection is the defining security problem of LLM applications. Instructions and data share one channel, so text that the application treats as data can be read by the model as instructions~\citep{perez2022ignore,greshake2023indirect}. In a chat interface the damage is usually confined to the reply. Agents change this. They browse, read mail, query databases and call tools, which gives an attacker who controls any text the agent reads a route to real actions~\citep{greshake2023indirect,zhan2024injecagent,debenedetti2024agentdojo}. Formal treatments and benchmarks~\citep{liu2024formalizing,yi2025bipia} show that no single defence is sufficient. Mitigation guidance such as the OWASP Top~10 for LLM applications~\citep{owasp2025llm} therefore recommends layered controls: treat external content as untrusted, constrain tool privileges, and require human approval for high-impact actions.
+
+Developers who want those layers today must assemble them by hand. We set out to build a small library that does four things:
+\begin{enumerate}
+\item it implements each layer at the point in the pipeline where it belongs;
+\item it explains every decision in terms of named rules, so that operators can audit and tune it;
+\item it runs anywhere without dependencies or network calls (browser, Node.js, Python);
+\item it comes with a labelled benchmark that is organised by \emph{stage}, so that a guard is scored where it would actually run.
+\end{enumerate}
+We are explicit about what such a library is \emph{not}. Deterministic rules cannot make an LLM agent robust to an adaptive adversary, and optimisation-based attacks routinely defeat learned safety behaviour~\citep{wei2023jailbroken,zou2023universal}. The goal is to raise the cost of common attacks, to make the remaining risk visible, and to put human approval in front of consequential actions.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item An open-source guardrail library (MIT) with a JavaScript implementation and a pure-Python port. A parity test shows that both produce identical outcomes, scores and explanations on the full benchmark under all eight bundled policies.
+\item A stage-labelled benchmark of 257 cases (CC-BY-4.0) with a taxonomy, provenance notes and a reproducible evaluation that reports Wilson intervals~\citep{wilson1927probable} and stage-matched precision, recall and F1.
+\item An evaluation against two baselines that we run ourselves: a keyword filter and an ablation that keeps only the input detector. The evaluation shows where the stage-specific layers matter. It also lists the 24 attacks the default policy misses, and why.
+\end{itemize}
+
+\section{Threat model}
+\label{sec:threat}
+We consider an agent that acts for a \emph{principal}, the user or operator. It has a system prompt and tools and processes four kinds of text: the principal's messages, \emph{untrusted content} (web pages, emails, documents, retrieved passages and tool results), the model's own output, and tool calls proposed by the model.
+
+\paragraph{Attacker.} The attacker controls some untrusted content (indirect injection) or is the user of a public-facing agent (direct injection and jailbreaks). The attacker wants one of four things:
+\begin{enumerate}[label=(\roman*)]
+\item to override the principal's instructions (goal hijacking);
+\item to extract the system prompt or other confidential context;
+\item to exfiltrate data, for example through a link or a markdown image the client renders;
+\item to make the agent misuse a tool: a destructive command, an unauthorised payment, or a message to an outside address.
+\end{enumerate}
+The attacker knows that a guard may exist and may obfuscate payloads (encodings, look-alike characters, invisible characters, other languages).
+
+\paragraph{Out of scope.} We do not defend against an attacker who can query the guard adaptively to optimise a payload. We do not cover compromise of the host, the model weights or the tool implementations, or non-text modalities. We also do not prevent a model from being \emph{wrong} on its own without an injection.
+
+\paragraph{Defender's assumptions.} Tool calls are routed through the guard. The operator writes a policy that names the agent's tools and their limits. A person reviews actions that the policy marks as requiring approval.
+
+\section{Design}
+\label{sec:design}
+AgentShield exposes one object, the \emph{guard}, configured by a YAML or JSON policy. It has one method per stage. Every method returns a verdict, the rule IDs that fired, a plain-English reason for each, and timing. Every decision is appended to a hash-chained (SHA-256) audit log, so that tampering with past entries is detectable.
+
+\subsection{Input: a normalised, explainable detector}
+The detector scores text against 76 hand-written regular-expression rules in ten categories:
+\begin{itemize}
+\item override (8), jailbreak (15), extraction (7), role injection (5) and authority claims (4);
+\item indirect-injection phrasing (8), exfiltration requests (6) and tool coercion (6);
+\item obfuscation (3) and non-English variants (14).
+\end{itemize}
+Each rule has a weight in $[0,1]$. Rules run over several \emph{views} of the text, so that obfuscated payloads are matched by the same rules. The views are:
+\begin{itemize}
+\item the canonicalised text: invisible and bidirectional characters stripped, NFKC normalisation, look-alike characters folded, quotes and dashes unified;
+\item a native-script view for non-Latin rules;
+\item de-leeted and letter-spacing-collapsed views;
+\item decoded base64, hex, \verb|\x|/\verb|\u| escapes, URL encoding, HTML entities and Unicode tag characters;
+\item ROT13 and reversed text;
+\item re-joined split fragments (\texttt{a="ign"; b="ore\dots"}).
+\end{itemize}
+A final letters-only ``compact'' view catches spacing and punctuation tricks with a small set of signature phrases.
+
+For each rule the best match across views is kept. A match found only after decoding, or only after folding look-alike characters, adds an \emph{evasion} signal, because disguising an instruction is itself evidence. Weights are combined with a noisy-OR, $s = 1 - \prod_i (1 - w_i)$, and thresholds map $s$ to \emph{allow}, \emph{flag} or \emph{block}; the default policy blocks at $0.7$ and flags at $0.4$.
+
+To limit false positives on text that \emph{discusses} attacks, such as security documentation, hits are down-weighted when the text contains two or more discussion markers (for example ``prompt injection'', ``for example'' or ``researchers''). They are down-weighted further when they fall inside quotation marks. Obfuscated hits are never down-weighted. Text from untrusted sources is held to a stricter standard (weights $\times 1.2$), because data should never address the model at all.
+
+\subsection{Untrusted content: spotlighting, hidden text and quarantine}
+Content passed to \texttt{ingest} is first scanned for hidden text. This includes HTML comments, \texttt{display:none}, zero-size, off-screen, white-on-white or transparent text, \texttt{aria-hidden}, alt text and meta tags, and Markdown comments. Hidden text is stripped by default and is itself scanned for instructions.
+
+The visible text is then scanned sentence by sentence. In the default policy, instruction-like sentences are removed (\emph{quarantined}) before the model sees the content. What remains is wrapped with \emph{spotlighting}~\citep{hines2024spotlighting}: randomised delimiters, or datamarking that interleaves a marker between words, together with a system-prompt note that marked text is data. Spotlighting is a mitigation, not a guarantee, so the quarantine step does not rely on it.
+
+Each ingested source is also registered with a \emph{taint tracker}. The tracker records entities (email addresses, URLs, domains, IBANs, card-like numbers, file paths) and 7-word shingles that occur in untrusted content but not in trusted context.
+
+\subsection{Output: redaction, leaks and exfiltration}
+Model output is checked for the following:
+\begin{itemize}
+\item secrets and PII by ten detectors: private keys, API-key shapes, JWTs, secret assignments, Luhn-valid card numbers, SSNs, email addresses, phone numbers, IBANs and IP addresses. Matches are redacted, except for allowlisted values.
+\item leakage of the system prompt (long verbatim overlaps) and of a canary token planted in it.
+\item exfiltration through URLs and markdown images: non-allowlisted image hosts, query strings or paths that carry encoded data or sensitive values, \texttt{javascript:} URLs, \texttt{userinfo} tricks and raw-IP hosts.
+\end{itemize}
+An optional JSON Schema check is also available.
+
+\subsection{Tools: a policy firewall with approvals and taint}
+Each tool call is checked against the policy before it runs. A rule can be one of three things:
+\begin{itemize}
+\item a plain action (\texttt{allow}, \texttt{deny} or \texttt{require-approval});
+\item a typed constraint: allowed and denied path globs (with traversal normalisation), domain allowlists, recipient allowlists, read-only SQL (statement splitting plus a keyword check that ignores comments), a list of 30 dangerous shell-command patterns, or amount limits (a soft limit that requires approval and a hard limit that denies);
+\item a stateful constraint: per-tool rate limits and per-session or per-hour spending budgets.
+\end{itemize}
+Unknown tools fall to the policy default. If an argument contains an entity or shingle that came from untrusted content, the call is escalated to approval. Calls that need approval are held in a queue with a human-readable diff and run only when someone approves them. The guard ships with wrappers for OpenAI- and Anthropic-style chat clients, MCP clients and LangChain-style tools, so these checks apply without changes to the agent loop.
+
+\subsection{Two implementations, one source of truth}
+The JavaScript library is the reference. A build script exports its rule tables, presets and benchmark cases as JSON, and the Python package loads them.
+
+JavaScript and Python regular expressions differ in subtle ways, for example in what counts as whitespace, how \verb|\w| and \verb|\b| treat Unicode, how \texttt{\$} matches near line ends, and how Unicode property classes are written. The Python port therefore translates each pattern under JavaScript semantics instead of reusing it verbatim. It also reimplements the JavaScript string, rounding, base64, URI-decoding and URL-parsing behaviour that affects verdicts.
+
+The parity test compares both implementations on three sets:
+\begin{itemize}
+\item every benchmark case under all eight policies (2{,}056 verdicts, including scores and explanations);
+\item 309 component-level texts;
+\item about 2{,}100 mutated variants (case changes, look-alike characters, spacing and encodings).
+\end{itemize}
+All of them are identical.
+
+\section{Benchmark construction}
+\label{sec:bench}
+AgentShield Bench has 257 cases. Each case is labelled with a \emph{kind} (attack or benign), a \emph{category} and a \emph{stage}: input (106), multi-turn conversation (8), untrusted content (64), model output (36) or tool call (43). The stage determines which guard method is exercised.
+
+The 191 attacks cover 14 categories:
+\begin{itemize}
+\item direct override (22), jailbreak (15), extraction (15), obfuscation (21) and multilingual (16, across 15 languages besides English);
+\item indirect injection through web pages (12), email (10), documents (8), tool results (8) and retrieved passages (6);
+\item exfiltration through output (11), PII and secret leaks (12), tool abuse (27) and multi-turn attacks (8).
+\end{itemize}
+The 66 benign cases are deliberate near-misses: everyday requests, discussion of prompt injection, code and shell commands that look dangerous, ordinary content with imperative wording, routine tool calls inside policy limits, and normal outputs that contain links and numbers.
+
+All cases were written by hand by the author, following attack patterns in the literature~\citep{perez2022ignore,greshake2023indirect,owasp2025llm}. All entities are fictional: domains use the reserved \texttt{.example} suffix, and keys and card numbers are test values. The output-stage cases assume a fixed system prompt and canary, which are included with the data. Tool-stage cases assume the tool names of the bundled policies.
+
+\paragraph{Metrics.} A case is \emph{stopped} if the guard blocks, quarantines or redacts it, or holds it for approval; merely flagging it does not count. The headline false-positive rate counts benign cases that are blocked, quarantined or redacted. Approvals of benign cases are reported separately as \emph{friction}, because some of them are intended (for example, an email to an outside address that the user asked for).
+
+For precision, recall and F1, a benign case has no attack category, so we use \emph{stage-matched} precision. A category's false positives are the benign cases at the same stage(s) that the guard intervened on, with approvals counted as interventions. Intervals are 95\% Wilson score intervals~\citep{wilson1927probable}.
+
+\paragraph{Baselines.} We compare only against systems we run ourselves on the same cases with the same metric code:
+\begin{itemize}
+\item a \emph{keyword filter} that stops a case if any of 16 common jailbreak phrases (for example ``ignore previous instructions'', ``system prompt'' or ``developer mode'') appears anywhere in the case's text;
+\item a \emph{detector-only} ablation that runs AgentShield's input detector, with the default thresholds, over all of a case's text and has no other layer.
+\end{itemize}
+We make no claims about other tools.
+
+\section{Results}
+\label{sec:results}
+All numbers in this section are produced by \texttt{python dataset/eval.py}. The tables are generated by that script and included verbatim. The JavaScript and Python packages give identical outcomes on every case, so one set of numbers covers both.
+
+\begin{table}[htbp]
+\centering\small
+\input{generated/summary.tex}
+\caption{Headline results on all 257 cases. ``Stopped'' is recall over the 191 attacks. FP is the share of the 66 benign cases that were blocked, quarantined or redacted (approvals excluded). Precision and F1 are overall and count benign approvals as false positives. The eight AgentShield rows are the bundled policies. The last two rows are our baselines.}
+\label{tab:summary}
+\end{table}
+
+\paragraph{Headline.} Table~\ref{tab:summary} shows the results for each policy.
+\begin{itemize}
+\item The default \texttt{balanced} policy stops 167 of 191 attacks (87.4\%, CI 82.0--91.4). It has three benign false positives (4.5\%) and two benign approvals (3.0\% friction).
+\item \texttt{strict} trades false positives (18.2\%) for 2.7 more points of recall.
+\item \texttt{permissive}, which uses high thresholds, does not quarantine, and allows tools by default except for dangerous shell and SQL commands and very large payments, stops 31.4\%.
+\end{itemize}
+The confidence intervals of \texttt{balanced} and \texttt{strict} overlap, so the recall difference between them is not significant at this sample size. The domain policies (support bot, SQL analyst, browser agent, MCP tools, email assistant) stop 88.0--88.5\%. Their friction (21--29\%) is higher because they require approval for more tool kinds, which is their purpose.
+
+\paragraph{Baselines.} The keyword filter stops 12.0\% of attacks and wrongly stops 7.6\% of benign cases. Its phrases occur in benign security discussion as often as in attacks. The detector-only ablation reaches 54.5\% recall with one false positive. It matches the full system on the five input-stage categories, which is expected, because those categories are where the detector applies. It falls far behind elsewhere (Table~\ref{tab:recall}):
+\begin{itemize}
+\item tool abuse (0\% against 88.9\%) and PII leaks (0\% against 83.3\%), where the decisive signal is the action or the data rather than instruction-like wording;
+\item indirect document and tool injections (12.5\% and 37.5\% against 100\%), where hidden-text stripping and the stricter standard for untrusted sources make the difference;
+\item exfiltration (9.1\% against 72.7\%), which needs URL analysis.
+\end{itemize}
+This is the main empirical point of the paper: most of the benefit comes from checks placed at the right stage, not from a better input classifier.
+
+\begin{table}[htbp]
+\centering\small
+\input{generated/per_category.tex}
+\caption{Per-category results for the \texttt{balanced} policy. FP / benign is stage-matched: of the benign cases at the same stage(s), how many the guard intervened on (approvals included).}
+\label{tab:percat}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\input{generated/recall_compare.tex}
+\caption{Recall (\%) per attack category for the keyword baseline, the detector-only ablation and the full \texttt{balanced} policy.}
+\label{tab:recall}
+\end{table}
+
+\paragraph{Per category.} Table~\ref{tab:percat} breaks down the \texttt{balanced} policy. Precision is lowest for the indirect categories (62.5--78.6\%). Three benign pieces of content were quarantined: a page that addresses ``AI researchers'', a product specification describing what an assistant should say, and an email from a colleague asking for discretion. All three contain imperative sentences aimed at people that the sentence scanner reads as instructions to the model. Because they share the untrusted stage, they count against all five indirect categories. Tool-abuse precision (92.3\%) reflects the two intended approvals.
+
+\paragraph{What it misses.} The 24 attacks that \texttt{balanced} does not stop fall into five groups:
+\begin{itemize}
+\item \emph{paraphrases with no trigger vocabulary}: reworded overrides and resets, role-play, indirect questions and pretexting for the prompt, a gradual crescendo, and a false fact planted in a retrieved passage;
+\item \emph{encodings and languages that are not covered}: Morse code, a Caesar shift other than ROT13, an acrostic, Swahili and Vietnamese;
+\item \emph{signals spread out or implicit}: a phrase assembled across turns, and a web page that steers the agent without addressing an AI;
+\item \emph{data that leaves through allowed channels}: an allowlisted domain, a spelled-out URL, a card number written in words, an SSN without dashes, and a look-alike punycode domain that is flagged but not stopped;
+\item \emph{semantically harmful but policy-compliant tool calls}: reading a denied file through an allowed command, sending sensitive data to an allowed internal address, and a read-only query that selects password hashes.
+\end{itemize}
+These cases were written deliberately to document the boundaries of a rule-based approach. They are the cases where a model-based classifier, which AgentShield accepts through an optional hook, or stricter tool design would be needed.
+
+\paragraph{Cost.} The guard is fast enough to run on every message. On an 8-vCPU cloud virtual machine (Node.js 24), the median time per case is 0.16\,ms for input checks, 0.47\,ms for untrusted content, 0.07\,ms for output and 0.02\,ms for tool calls; the 95th percentile is below 1\,ms for every stage. The detector uses no network and no model calls.
+
+\section{Limitations}
+\label{sec:limits}
+\begin{itemize}
+\item \textbf{The benchmark is not independent.} The same author wrote the rules and the cases, and the rules were refined while looking at the cases. The detection rates are therefore closer to training-set accuracy than to an estimate of performance on unseen attacks. They should not be compared with numbers reported on independent benchmarks~\citep{liu2024formalizing,yi2025bipia,zhan2024injecagent,debenedetti2024agentdojo}. Evaluating on those benchmarks is the most important next step.
+\item \textbf{Small sample.} With 191 attacks and 66 benign cases, the intervals are wide (Table~\ref{tab:summary}), and per-category estimates rest on 6--27 cases.
+\item \textbf{No adaptive attacks.} Every case is static. An attacker who can probe the guard will find paraphrases that pass, and gradient-based or model-generated attacks~\citep{zou2023universal} were not tested.
+\item \textbf{Heuristics have a ceiling.} Rules see wording, not intent. The misses in Section~\ref{sec:results} show the expected failure modes, and the false positives show the opposite cost on legitimate imperative text.
+\item \textbf{Policy dependence.} Tool-stage results depend on the bundled policies. A deployment with broader tool permissions will stop less.
+\item \textbf{Synthetic text.} The cases are short, mostly English and fictional. Real pages and emails are longer and noisier. The non-English cases were not reviewed by native speakers.
+\item \textbf{Port edge cases.} The Python port matches JavaScript on every tested input. Known edge cases where they may differ are input with lone UTF-16 surrogates, characters whose Unicode category changed between the Unicode versions of the two runtimes, and internationalised domain names in URL parsing.
+\item \textbf{Name.} Several unrelated projects and papers use the name ``AgentShield''. This work is not affiliated with them.
+\end{itemize}
+
+\section{Ethics}
+The attacks in the benchmark are publicly documented patterns. They are written to exercise defences and give negligible uplift to an attacker. The data contains no real personal information. Every entity is fictional and every domain uses a reserved suffix.
+
+Deploying a guard can create false confidence, and false positives can silently drop legitimate content. The library therefore reports every decision with its reasons and supports monitor-only and dry-run modes. The documentation repeats that the guard is one layer among several. We did not use human subjects, and no model was trained.
+
+\section{Reproducibility}
+Code (MIT), data (CC-BY-4.0), the evaluation script and this paper's source are in the repository. The tables in Section~\ref{sec:results} are generated by \texttt{python dataset/eval.py --latex paper/generated}. That command needs only Python~3.9 or newer, uses no network or API keys, and is deterministic. When Node.js is available, the script also runs the JavaScript package and fails if any outcome or table differs between the two. Continuous integration runs the JavaScript tests, the Python tests, the parity tests and a check that the exported data matches the JavaScript source. The results here correspond to version 0.2.0 of both packages and version 1.0.0 of the benchmark.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}
