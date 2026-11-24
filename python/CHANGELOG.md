@@ -2,7 +2,7 @@
 
 All notable changes to the Python package `quadward` are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). The version number moves in step with the npm package.
 
-## [0.2.0] - unreleased
+## [0.2.0] - 2026-11-24
 
 The project was previously developed under the working name AgentShield.
 

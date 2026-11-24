@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY 4.0](https://img.shields.io/badge/data-CC%20BY%204.0-lightgrey.svg)](dataset/LICENSE)
 [![Node 18+](https://img.shields.io/badge/node-%3E%3D18-339933.svg)](lib/package.json)
+[![PyPI](https://img.shields.io/pypi/v/quadward.svg)](https://pypi.org/project/quadward/)
 [![Python 3.9+](https://img.shields.io/badge/python-%3E%3D3.9-3776AB.svg)](python/pyproject.toml)
 [![JS/Python parity](https://img.shields.io/badge/JS%E2%86%94Python-identical%20verdicts-success.svg)](python/tests/test_parity.py)
 
@@ -70,11 +71,11 @@ Your key handling:
 
 ## Library
 
-The library is packaged for npm and PyPI as `quadward` (see [lib/README.md](lib/README.md) and [python/README.md](python/README.md)). It has not been released to either registry yet. Until then, install from GitHub or copy `lib/` into your project:
+The Python package is on PyPI as [`quadward`](https://pypi.org/project/quadward/) (`pip install quadward`; see [python/README.md](python/README.md)). The JavaScript package is ready for npm under the same name (see [lib/README.md](lib/README.md)) but has not been released there yet. Until then, install it from GitHub or copy `lib/` into your project:
 
 ```bash
 npm install github:shaikbasha1437/quadward          # JavaScript (ESM; TypeScript types included)
-pip install "git+https://github.com/shaikbasha1437/quadward#subdirectory=python"   # Python 3.9+
+pip install quadward                                  # Python 3.9+, from PyPI
 ```
 
 ```js

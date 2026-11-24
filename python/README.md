@@ -17,7 +17,7 @@ pip install quadward            # no dependencies
 pip install "quadward[yaml]"    # adds PyYAML for your own YAML policies
 ```
 
-Until the first release is on PyPI, install from the repository with `pip install "git+https://github.com/shaikbasha1437/quadward#subdirectory=python"`. Python 3.9 or newer is required.
+Python 3.9 or newer is required. To track the development version, install from the repository with `pip install "git+https://github.com/shaikbasha1437/quadward#subdirectory=python"`.
 
 ## Quickstart
 
