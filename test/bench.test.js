@@ -4,7 +4,7 @@ import { runBenchmarkSync, runBenchmark, gate, compareReports, summarize } from 
 import { wilson, percentile, mcnemar, binomCdf } from '../bench/stats.js';
 import { reportToMarkdown, reportToHtml } from '../bench/report.js';
 import { parsePolicy, PRESETS } from '../lib/index.js';
-import { main } from '../cli/agentshield.js';
+import { main } from '../cli/quadward.js';
 import { run as runAction } from '../action/index.js';
 const pol = (id) => parsePolicy(PRESETS[id].yaml).policy;
 test('suite shape: 150+ fictional cases with unique ids, attacks and tricky benign cases', () => {

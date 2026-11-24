@@ -68,7 +68,7 @@ class AuditLog:
         return self.entries[-1]["hash"] if self.entries else GENESIS
 
     def to_json(self) -> dict:
-        return {"format": "agentshield-audit/1", "head": self.head(), "count": len(self.entries), "entries": self.entries}
+        return {"format": "quadward-audit/1", "head": self.head(), "count": len(self.entries), "entries": self.entries}
 
 
 def verify_chain(entries: list) -> dict:

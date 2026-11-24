@@ -1,5 +1,5 @@
 {
- "generatedFrom": "lib/ (JavaScript package agentshield-guardrails 0.2.0)",
+ "generatedFrom": "lib/ (JavaScript package quadward 0.2.0)",
  "injection": [
   {
    "id": "override-instructions",

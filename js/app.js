@@ -1,4 +1,4 @@
-/* AgentShield AI app: playground (guard off vs on), inspector, attack benchmark, policy editor with live
+/* Quadward app: playground (guard off vs on), inspector, attack benchmark, policy editor with live
    validation and tests, approval queue with diffs, hash-chained audit log, library docs, settings and exports. */
 import * as L from '../lib/index.js';
 import { runBenchmark, compareReports } from '../bench/run.js';
@@ -363,7 +363,7 @@ async function runBench() {
   view.benchRunning = false; if (settings.tab === 'bench') renderBench();
 }
 function exportReport(rep, kind) {
-  const name = 'agentshield-report-' + fileSlug(rep.policyName);
+  const name = 'quadward-report-' + fileSlug(rep.policyName);
   if (kind === 'md') download(name + '.md', scrub(reportToMarkdown(rep.report), secretList()), 'text/markdown');
   else if (kind === 'html') download(name + '.html', scrub(reportToHtml(rep.report), secretList()), 'text/html');
   else download(name + '.json', scrub(JSON.stringify(rep.report, null, 2), secretList()), 'application/json');
@@ -406,7 +406,7 @@ function renderPolicy() {
   $('#p-new').onclick = () => { if (!confirmDiscardPolicy()) return; const n = { id: uid('pol'), name: 'my-policy', preset: null, yaml: L.PRESETS.balanced.yaml.replace(/^name:.*$/m, 'name: my-policy').replace(/^# .*\n/, '# My policy, started from balanced.\n'), updatedAt: new Date().toISOString() }; const undo = snapshot('New policy'); state.policies.push(n); view.editorId = n.id; view.editorText = null; persist(); renderPolicy(); toast('New policy created.', undo); };
   $('#p-restore').onclick = () => { const undo = snapshot('Restore presets'); let added = 0; for (const id of L.PRESET_IDS) { const ex = state.policies.find((p) => p.id === 'pol-' + id); if (ex) { if (ex.yaml !== L.PRESETS[id].yaml) { ex.yaml = L.PRESETS[id].yaml; ex.preset = id; added++; } } else { state.policies.push({ id: 'pol-' + id, name: id, preset: id, yaml: L.PRESETS[id].yaml, updatedAt: new Date().toISOString() }); added++; } } persist(); if (guard) guard.setPolicy(activePolicy()); view.editorText = null; view.policyDirty = false; renderAll(); toast(added ? 'Restored ' + added + ' preset(s).' : 'Presets were already intact.', added ? undo : null); };
   $('#p-import').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; if (f.size > 500000) { toast('That file is too large for a policy.'); return; } importPolicyText(await f.text(), f.name.replace(/\.(ya?ml|json)$/i, '')); };
-  $$('[data-pexp]').forEach((b) => (b.onclick = () => { const r = L.parsePolicy(ta.value); if (!r.policy) { toast('Fix the errors before exporting.'); return; } const yaml = b.dataset.pexp === 'yaml'; download('agentshield-policy-' + fileSlug(r.policy.name) + (yaml ? '.yaml' : '.json'), scrub(yaml ? (view.editorText != null ? view.editorText : editingRec().yaml) : L.policyToJson(r.policy), secretList()), yaml ? 'text/yaml' : 'application/json'); toast('Policy downloaded.'); }));
+  $$('[data-pexp]').forEach((b) => (b.onclick = () => { const r = L.parsePolicy(ta.value); if (!r.policy) { toast('Fix the errors before exporting.'); return; } const yaml = b.dataset.pexp === 'yaml'; download('quadward-policy-' + fileSlug(r.policy.name) + (yaml ? '.yaml' : '.json'), scrub(yaml ? (view.editorText != null ? view.editorText : editingRec().yaml) : L.policyToJson(r.policy), secretList()), yaml ? 'text/yaml' : 'application/json'); toast('Policy downloaded.'); }));
   $('#p-share').onclick = () => { const src = scrub(ta.value, secretList()); if (src.length > 12000) { toast('This policy is too long for a link; export it instead.'); return; } const url = location.origin + location.pathname + '#policy=' + encodeURIComponent(b64e(src)); copy(url, 'Share link copied. It contains the policy only, never keys or data.'); };
   $('#p-test').onclick = () => { const r = L.parsePolicy(ta.value); if (!r.policy) { $('#p-test-out').innerHTML = '<p class="err">Fix the errors first.</p>'; return; } const res = L.runPolicyTests(r.policy); const bad = res.filter((x) => !x.pass).length; $('#p-test-out').innerHTML = res.length ? '<div class="verdict ' + (bad ? 'bad' : 'ok') + '"><b>' + (res.length - bad) + ' of ' + res.length + ' passed</b></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Test</th><th>Expected</th><th>Got</th><th>Why</th></tr></thead><tbody>' + res.map((x) => '<tr class="' + (x.pass ? '' : 'bad-row') + '"><td>' + (x.pass ? '✓ ' : '✗ ') + esc(x.name) + '</td><td>' + esc(x.expect) + '</td><td><b>' + esc(x.got) + '</b></td><td class="small">' + esc(x.detail || '') + '</td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">This policy has no tests yet. Add a <code>tests:</code> list.</p>'; };
 }
@@ -459,7 +459,7 @@ function renderAudit() {
     + (rows.length ? '<div class="table-wrap"><table class="tbl audit"><thead><tr><th>#</th><th>Time</th><th>Type</th><th>Summary</th><th>Hash</th></tr></thead><tbody>' + rows.slice(0, 400).map((e) => '<tr><td class="num">' + e.seq + '</td><td class="nowrap">' + esc(when(e.ts)) + '</td><td>' + esc(e.type) + '</td><td><button type="button" class="linkish" data-entry="' + e.seq + '">' + esc(auditSummary(e)) + '</button></td><td><code>' + esc(e.hash.slice(0, 10)) + '</code></td></tr>').join('') + '</tbody></table></div>' + (rows.length > 400 ? '<p class="small muted">Showing the newest 400; export to see all.</p>' : '') : '<p class="muted mt">No entries yet. Run a playground scenario.</p>') + '</div>';
   $('#a-type').onchange = (e) => { view.auditFilter = e.target.value; renderAudit(); };
   $('#a-verify').onclick = () => { const r = L.verifyChain(state.audit); toast(r.ok ? 'Chain intact: ' + r.reason + '.' : 'Chain broken at entry ' + r.brokenAt + ': ' + r.reason); renderAudit(); };
-  $('#a-export').onclick = () => { const data = { format: 'agentshield-audit/1', exportedAt: new Date().toISOString(), head: entries.length ? entries[entries.length - 1].hash : L.GENESIS, count: entries.length, verify: L.verifyChain(entries), entries }; download('agentshield-audit.json', scrub(JSON.stringify(data, null, 2), secretList()), 'application/json'); toast('Audit log downloaded (already redacted).'); };
+  $('#a-export').onclick = () => { const data = { format: 'quadward-audit/1', exportedAt: new Date().toISOString(), head: entries.length ? entries[entries.length - 1].hash : L.GENESIS, count: entries.length, verify: L.verifyChain(entries), entries }; download('quadward-audit.json', scrub(JSON.stringify(data, null, 2), secretList()), 'application/json'); toast('Audit log downloaded (already redacted).'); };
   $('#a-clear').onclick = () => { const undo = snapshot('Clear audit log'); state.audit.length = 0; persist(); rebuildGuard(); renderAudit(); toast('Audit log cleared.', undo); };
   $('#a-tamper').onclick = () => openTamper();
   $$('[data-entry]').forEach((b) => (b.onclick = () => { const e = state.audit.find((x) => x.seq === Number(b.dataset.entry)); openModal('Audit entry ' + e.seq, '<dl class="kv"><dt>Type</dt><dd>' + esc(e.type) + '</dd><dt>Time</dt><dd>' + esc(e.ts) + '</dd><dt>Previous hash</dt><dd><code>' + esc(e.prev) + '</code></dd><dt>Hash</dt><dd><code>' + esc(e.hash) + '</code></dd></dl><pre class="out">' + esc(JSON.stringify(e.data, null, 2)) + '</pre>', { wide: true, name: 'entry' }); }));
@@ -476,11 +476,11 @@ function openTamper() {
 }
 
 /* ---------------- library docs ---------------- */
-const LIB_DOCS = `<div class="panel lib"><h2>Use the guard in your own agent</h2><p>The library in <code>lib/</code> is plain ES modules with no dependencies, so it runs in Node 18+, Deno, Bun, workers and browsers. It is packaged as <code>agentshield-guardrails</code> for npm and PyPI (the Python port gives identical verdicts on the benchmark). Until the first release is on the registries, install from the repository:</p><pre class="out">npm install github:shaikbasha1437/agentshield-ai
+const LIB_DOCS = `<div class="panel lib"><h2>Use the guard in your own agent</h2><p>The library in <code>lib/</code> is plain ES modules with no dependencies, so it runs in Node 18+, Deno, Bun, workers and browsers. It is packaged as <code>quadward</code> for npm and PyPI (the Python port gives identical verdicts on the benchmark). Until the first release is on the registries, install from the repository:</p><pre class="out">npm install github:shaikbasha1437/quadward
 // or copy lib/ into your project
-import { createGuard, PRESETS } from 'agentshield-ai/lib/index.js';
-// after the npm release: import { createGuard, PRESETS } from 'agentshield-guardrails';
-// Python: pip install agentshield-guardrails, then from agentshield_guardrails import Guard</pre>
+import { createGuard, PRESETS } from 'quadward/lib/index.js';
+// after the npm release: import { createGuard, PRESETS } from 'quadward';
+// Python: pip install quadward, then from quadward import Guard</pre>
 <h3>Core calls</h3><pre class="out">const guard = createGuard({ policy: PRESETS.balanced.yaml, systemPrompt });
 const d = guard.checkInput(userText);          // { verdict: 'block' | 'flag' | 'allow', score, hits: [{ rule, why, ... }] }
 const page = guard.ingest(html, { source: 'web', label: url });   // page.wrapped is safe to show the model
@@ -506,23 +506,23 @@ const agent = createToolCallingAgent({ llm, tools: safeTools, prompt });</pre>
 const classifier = makeClassifier(async (messages) => callYourModel(messages));   // returns the reply text
 const guard = createGuard({ policy, classifier });   // and set input.classifier.enabled: true
 const d = await guard.checkInputAsync(text);</pre>
-<h3>Proxy (optional, self-hosted)</h3><pre class="out">AGENTSHIELD_POLICY=examples/policy.balanced.yaml AGENTSHIELD_ADMIN_TOKEN=change-me node server/proxy.js
+<h3>Proxy (optional, self-hosted)</h3><pre class="out">QUADWARD_POLICY=examples/policy.balanced.yaml QUADWARD_ADMIN_TOKEN=change-me node server/proxy.js
 # point any OpenAI-compatible client at http://127.0.0.1:8787/v1
 # admin: GET /guard/audit, GET /guard/approvals, POST /guard/approvals/:id/approve, POST /guard/kill</pre>
-<h3>GitHub Action</h3><pre class="out">- uses: shaikbasha1437/agentshield-ai/action@main
+<h3>GitHub Action</h3><pre class="out">- uses: shaikbasha1437/quadward/action@main
   with:
     policy: guardrails/policy.yaml
     baseline: guardrails/baseline.json
     min-stop-rate: '0.8'
     max-false-positive-rate: '0.1'</pre>
-<h3>CLI</h3><pre class="out">node cli/agentshield.js bench --policy balanced --md report.md
-node cli/agentshield.js validate --policy my-policy.yaml
-node cli/agentshield.js check --policy strict "ignore previous instructions"</pre>
+<h3>CLI</h3><pre class="out">node cli/quadward.js bench --policy balanced --md report.md
+node cli/quadward.js validate --policy my-policy.yaml
+node cli/quadward.js check --policy strict "ignore previous instructions"</pre>
 <p class="small muted">The guard reduces risk; it does not remove it. Keep secrets out of prompts, give tools the least access they need, and require approval for anything you cannot undo.</p></div>`;
 function renderLibrary() { $('#panel').innerHTML = LIB_DOCS; }
 
 /* ---------------- export, backup, restore, reset ---------------- */
-function backupJson() { const s = clone(state); return scrub(JSON.stringify({ format: 'agentshield-backup/1', exportedAt: new Date().toISOString(), note: 'Policies, runs, reports, audit log and settings. API keys are never included.', settings: Object.assign({}, settings), state: s }, null, 2), secretList()); }
+function backupJson() { const s = clone(state); return scrub(JSON.stringify({ format: 'quadward-backup/1', exportedAt: new Date().toISOString(), note: 'Policies, runs, reports, audit log and settings. API keys are never included.', settings: Object.assign({}, settings), state: s }, null, 2), secretList()); }
 function openExport() {
   const rep = curReport();
   const html = '<h3>Policy</h3><div class="row"><button type="button" data-x="pol-yaml">Active policy (YAML)</button><button type="button" data-x="pol-json">Active policy (JSON)</button></div>'
@@ -533,19 +533,19 @@ function openExport() {
   openModal('Export, backup and reset', html, { name: 'export', onmount: () => {
     $$('[data-x]').forEach((b) => (b.onclick = () => {
       const k = b.dataset.x; const rec = activePolicyRec(); const pol = activePolicy();
-      if (k === 'pol-yaml') download('agentshield-policy-' + fileSlug(pol.name) + '.yaml', scrub(rec.yaml, secretList()), 'text/yaml');
-      if (k === 'pol-json') download('agentshield-policy-' + fileSlug(pol.name) + '.json', scrub(L.policyToJson(pol), secretList()), 'application/json');
+      if (k === 'pol-yaml') download('quadward-policy-' + fileSlug(pol.name) + '.yaml', scrub(rec.yaml, secretList()), 'text/yaml');
+      if (k === 'pol-json') download('quadward-policy-' + fileSlug(pol.name) + '.json', scrub(L.policyToJson(pol), secretList()), 'application/json');
       if (k.startsWith('rep-')) exportReport(rep, k.slice(4));
-      if (k === 'audit') download('agentshield-audit.json', scrub(JSON.stringify({ format: 'agentshield-audit/1', count: state.audit.length, verify: L.verifyChain(state.audit), entries: state.audit }, null, 2), secretList()), 'application/json');
-      if (k === 'backup') download('agentshield-backup.json', backupJson(), 'application/json');
+      if (k === 'audit') download('quadward-audit.json', scrub(JSON.stringify({ format: 'quadward-audit/1', count: state.audit.length, verify: L.verifyChain(state.audit), entries: state.audit }, null, 2), secretList()), 'application/json');
+      if (k === 'backup') download('quadward-backup.json', backupJson(), 'application/json');
       if (!k.startsWith('rep-')) toast('Downloaded.');
     }));
-    $('#x-restore').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; let j; try { j = JSON.parse(await f.text()); } catch (er) { toast('That file is not valid JSON.'); return; } if (!j || j.format !== 'agentshield-backup/1' || !j.state || !Array.isArray(j.state.policies)) { toast('That is not an AgentShield backup.'); return; } if (!confirm('Replace your current policies, runs, reports and audit log with this backup?')) return; const undo = snapshot('Restore'); state = Object.assign(freshState(), j.state); persist(); rebuildGuard(); closeModal(true); renderAll(); toast('Backup restored.', undo); };
+    $('#x-restore').onchange = async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; let j; try { j = JSON.parse(await f.text()); } catch (er) { toast('That file is not valid JSON.'); return; } if (!j || (j.format !== 'quadward-backup/1' && j.format !== 'agentshield-backup/1' /* backups made under the earlier name */) || !j.state || !Array.isArray(j.state.policies)) { toast('That is not an Quadward backup.'); return; } if (!confirm('Replace your current policies, runs, reports and audit log with this backup?')) return; const undo = snapshot('Restore'); state = Object.assign(freshState(), j.state); persist(); rebuildGuard(); closeModal(true); renderAll(); toast('Backup restored.', undo); };
     $('#x-reset').onclick = () => { const undo = snapshot('Reset'); state = freshState(); view.run = null; view.policyDirty = false; view.editorText = null; view.editorId = null; persist(); rebuildGuard(); closeModal(true); renderAll(); toast('All data reset.', undo); };
   } });
 }
 function openHelp() {
-  openModal('How AgentShield works', '<ol class="steps"><li><b>Input guard.</b> Every user prompt is checked by about 150 explainable rules across overrides, jailbreaks, prompt extraction, role injection, fake authority, exfiltration, tool coercion and 13 languages. The text is also decoded and normalised (look-alike letters, leetspeak, spaced letters, invisible Unicode tags, base64, hex, URL escapes, ROT13, reversed text) so tricks do not hide a phrase. Scores combine with a noisy-OR; quoting an attack in a discussion is down-weighted.</li><li><b>Untrusted content.</b> Web pages, emails, documents, retrieved chunks and tool results are scanned for hidden text (comments, CSS-hidden, white or tiny text, alt text, zero-width and tag characters), instruction-like sentences are removed, and what remains is wrapped in labelled boundaries with a note telling the model not to follow it.</li><li><b>Tool firewall.</b> A declarative policy allows, denies or sends each call for approval, with path, domain, recipient, command, SQL and amount limits, budgets, rate limits and dangerous-command detection. Taint tracking notices when an argument (an address, URL, amount or path) was copied from outside content, and a kill switch stops everything.</li><li><b>Output guard.</b> Answers are checked for keys, tokens, card numbers that pass the Luhn check, SSN-shaped numbers and other personal data, for the canary and system-prompt text, and for links and images that could carry data to a domain off the allowlist.</li><li><b>Audit.</b> Every decision is written to a redacted, hash-chained log you can verify and export.</li></ol><p class="small muted">The demo model is a deterministic, deliberately gullible planner: it follows any instruction it can read. Live mode lets you try the same scenarios against a real model with your own key. No layer is perfect; the benchmark lists what gets through.</p>', { wide: true, name: 'help' });
+  openModal('How Quadward works', '<ol class="steps"><li><b>Input guard.</b> Every user prompt is checked by about 150 explainable rules across overrides, jailbreaks, prompt extraction, role injection, fake authority, exfiltration, tool coercion and 13 languages. The text is also decoded and normalised (look-alike letters, leetspeak, spaced letters, invisible Unicode tags, base64, hex, URL escapes, ROT13, reversed text) so tricks do not hide a phrase. Scores combine with a noisy-OR; quoting an attack in a discussion is down-weighted.</li><li><b>Untrusted content.</b> Web pages, emails, documents, retrieved chunks and tool results are scanned for hidden text (comments, CSS-hidden, white or tiny text, alt text, zero-width and tag characters), instruction-like sentences are removed, and what remains is wrapped in labelled boundaries with a note telling the model not to follow it.</li><li><b>Tool firewall.</b> A declarative policy allows, denies or sends each call for approval, with path, domain, recipient, command, SQL and amount limits, budgets, rate limits and dangerous-command detection. Taint tracking notices when an argument (an address, URL, amount or path) was copied from outside content, and a kill switch stops everything.</li><li><b>Output guard.</b> Answers are checked for keys, tokens, card numbers that pass the Luhn check, SSN-shaped numbers and other personal data, for the canary and system-prompt text, and for links and images that could carry data to a domain off the allowlist.</li><li><b>Audit.</b> Every decision is written to a redacted, hash-chained log you can verify and export.</li></ol><p class="small muted">The demo model is a deterministic, deliberately gullible planner: it follows any instruction it can read. Live mode lets you try the same scenarios against a real model with your own key. No layer is perfect; the benchmark lists what gets through.</p>', { wide: true, name: 'help' });
 }
 
 /* ---------------- routing and start-up ---------------- */
@@ -577,5 +577,5 @@ async function init() {
   checkShareLink(); addEventListener('hashchange', checkShareLink);
   sqlLoader().catch(() => null);
 }
-window.AgentShield = { get state() { return state; }, get guard() { return guard; }, get settings() { return settings; }, L, flush: () => STORE.flush() };
+window.Quadward = { get state() { return state; }, get guard() { return guard; }, get settings() { return settings; }, L, flush: () => STORE.flush() };
 init();

@@ -12,7 +12,7 @@ Thanks for helping. Bug reports, missed attacks, false positives and new benchma
 ## Setup
 
 ```sh
-git clone https://github.com/shaikbasha1437/agentshield-ai && cd agentshield-ai
+git clone https://github.com/shaikbasha1437/quadward && cd quadward
 npm test                                             # Node 18+ (CI uses Node 24); no dependencies to install
 python -m venv .venv && . .venv/bin/activate
 pip install -e "python[test]" && pytest python       # Python 3.9+
@@ -22,10 +22,10 @@ pip install -e "python[test]" && pytest python       # Python 3.9+
 
 1. Edit `lib/` (rules, presets) or `bench/cases.js` (cases).
 2. Run `node scripts/export-data.mjs`. This regenerates:
-   - `python/src/agentshield_guardrails/data/`;
+   - `python/src/quadward/data/`;
    - the golden files in `python/tests/golden/`;
    - `dataset/data/`.
-3. Run `npm test` and `pytest python`. If the Python port disagrees with JavaScript on a new pattern, the parity test names the case. Fix the translation in `python/src/agentshield_guardrails/_jsre.py` or the matching module.
+3. Run `npm test` and `pytest python`. If the Python port disagrees with JavaScript on a new pattern, the parity test names the case. Fix the translation in `python/src/quadward/_jsre.py` or the matching module.
 4. Run `python dataset/eval.py` and update the numbers in the README if they changed.
 5. Add a line to `lib/CHANGELOG.md` and `python/CHANGELOG.md`.
 

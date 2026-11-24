@@ -4,10 +4,10 @@ import json
 
 import pytest
 
-import agentshield_guardrails as ag
-from agentshield_guardrails._jsre import compile_js, js_trim, utf16_len
-from agentshield_guardrails._url import parse_url
-from agentshield_guardrails.cli import main
+import quadward as ag
+from quadward._jsre import compile_js, js_trim, utf16_len
+from quadward._url import parse_url
+from quadward.cli import main
 
 
 # ---------------------------------------------------------------- regex translation

@@ -1,6 +1,6 @@
 ---
 license: cc-by-4.0
-pretty_name: AgentShield Bench
+pretty_name: Quadward Bench
 language:
   - en
   - es
@@ -36,11 +36,11 @@ configs:
         path: data/test.jsonl
 ---
 
-# AgentShield Bench
+# Quadward Bench
 
-AgentShield Bench is a small, labelled, stage-aware benchmark for guardrails around LLM agents. It has **257 cases: 191 attacks and 66 benign look-alikes.** Each case says which point in an agent pipeline it targets: the user's input, untrusted content the agent reads, the model's output, or a tool call. A guard can therefore be scored at the stage where it would actually run.
+Quadward Bench is a small, labelled, stage-aware benchmark for guardrails around LLM agents. It has **257 cases: 191 attacks and 66 benign look-alikes.** Each case says which point in an agent pipeline it targets: the user's input, untrusted content the agent reads, the model's output, or a tool call. A guard can therefore be scored at the stage where it would actually run.
 
-It was built to test the open-source [AgentShield](https://github.com/shaikbasha1437/agentshield-ai) guardrails, and it ships with a reproducible evaluation script. It is meant as a **regression and smoke test**, not as a leaderboard; see [Limitations](#limitations).
+It was built to test the open-source [Quadward](https://github.com/shaikbasha1437/quadward) guardrails, and it ships with a reproducible evaluation script. It is meant as a **regression and smoke test**, not as a leaderboard; see [Limitations](#limitations).
 
 - **Licence:** CC-BY-4.0 for the data; the evaluation code is MIT.
 - **Version:** 1.0.0 (cases), exported from `bench/cases.js` in the repository.
@@ -57,7 +57,8 @@ It was built to test the open-source [AgentShield](https://github.com/shaikbasha
 
 ```python
 from datasets import load_dataset
-ds = load_dataset("json", data_files="data/test.jsonl", split="train")   # or the Hub id once uploaded
+ds = load_dataset("json", data_files="data/test.jsonl", split="train")      # from a checkout
+ds = load_dataset("shaikbasha1437/quadward-bench", split="test")           # once uploaded to the Hub
 ```
 
 ## Fields
@@ -117,7 +118,7 @@ Common fields are `id`, `kind`, `cat`, `stage` and `note`. The stage-specific fi
 
 ## Provenance
 
-Every case was **written by hand by the AgentShield author** (Basha Shaik) in November 2026, using the attack patterns described in the public literature. The main sources were indirect prompt injection (Greshake et al., 2023), goal hijacking and prompt leaking (Perez & Ribeiro, 2022), and the OWASP Top 10 for LLM Applications.
+Every case was **written by hand by the Quadward author** (Basha Shaik) in November 2026, using the attack patterns described in the public literature. The main sources were indirect prompt injection (Greshake et al., 2023), goal hijacking and prompt leaking (Perez & Ribeiro, 2022), and the OWASP Top 10 for LLM Applications.
 
 No case was scraped from users or collected from a production system. All companies, people, addresses, keys and card numbers are fictional:
 
@@ -143,22 +144,22 @@ A case counts as **stopped** if the guard blocked, quarantined or redacted it, o
 
 All rates come with 95% Wilson score intervals.
 
-Results for AgentShield 0.2.0 (identical for the JavaScript and Python packages), plus two baselines:
+Results for Quadward 0.2.0 (identical for the JavaScript and Python packages), plus two baselines:
 
 | System | Attacks stopped [95% CI] | False positives [95% CI] | Precision | Recall | F1 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| AgentShield, `balanced` | 87.4 [82.0–91.4] | 4.5 [1.6–12.5] | 97.1 | 87.4 | 92.0 |
-| AgentShield, `strict` | 90.1 [85.0–93.5] | 18.2 [10.7–29.1] | 91.5 | 90.1 | 90.8 |
-| AgentShield, `permissive` | 31.4 [25.3–38.3] | 0.0 [0.0–5.5] | 100.0 | 31.4 | 47.8 |
+| Quadward, `balanced` | 87.4 [82.0–91.4] | 4.5 [1.6–12.5] | 97.1 | 87.4 | 92.0 |
+| Quadward, `strict` | 90.1 [85.0–93.5] | 18.2 [10.7–29.1] | 91.5 | 90.1 | 90.8 |
+| Quadward, `permissive` | 31.4 [25.3–38.3] | 0.0 [0.0–5.5] | 100.0 | 31.4 | 47.8 |
 | Keyword filter (16 phrases) | 12.0 [8.2–17.4] | 7.6 [3.3–16.5] | 82.1 | 12.0 | 21.0 |
-| AgentShield detector only (ablation) | 54.5 [47.4–61.4] | 1.5 [0.3–8.1] | 99.0 | 54.5 | 70.3 |
+| Quadward detector only (ablation) | 54.5 [47.4–61.4] | 1.5 [0.3–8.1] | 99.0 | 54.5 | 70.3 |
 
 Run `eval.py` for the per-category tables and the other five presets.
 
 ## Limitations
 
 - **Small:** 257 cases give wide confidence intervals, especially per category (n = 6 to 27). Differences of a few points between systems are usually not significant.
-- **Not independent:** the same person wrote the cases and the AgentShield rules, and the rules were developed while looking at the cases. AgentShield's scores here are therefore closer to training-set accuracy than to generalisation, and they should not be compared with numbers from independent benchmarks.
+- **Not independent:** the same person wrote the cases and the Quadward rules, and the rules were developed while looking at the cases. Quadward's scores here are therefore closer to training-set accuracy than to generalisation, and they should not be compared with numbers from independent benchmarks.
 - **Synthetic and English-centred:** the cases are short and hand-written. Real web pages, emails and tool output are longer and messier. The multilingual coverage is shallow.
 - **Static:** there are no adaptive attacks and no optimisation-based or model-generated attacks, so an attacker who tunes against a specific guard will do better.
 - **Text only:** there are no images, audio or PDFs.
@@ -172,10 +173,10 @@ The attacks are well-known patterns that are already described publicly. They ar
 ## Citation
 
 ```bibtex
-@misc{shaik2026agentshield,
-  title  = {AgentShield: Explainable, Stage-Aware Guardrails for {LLM} Agents and a Small Benchmark for Them},
+@misc{shaik2026quadward,
+  title  = {Quadward: Stage-Aware, Explainable Guardrails for Tool-Using {LLM} Agents},
   author = {Shaik, Basha},
   year   = {2026},
-  howpublished = {\url{https://github.com/shaikbasha1437/agentshield-ai}}
+  howpublished = {\url{https://github.com/shaikbasha1437/quadward}}
 }
 ```

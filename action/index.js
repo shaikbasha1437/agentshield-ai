@@ -1,10 +1,10 @@
 /* GitHub Action entry point (node24). No dependencies: reads INPUT_* variables, runs the benchmark through the
    CLI code, writes the reports, a job summary and outputs, and exits 1 when the gate fails. */
 import fs from 'node:fs'; import path from 'node:path';
-import { main } from '../cli/agentshield.js';
+import { main } from '../cli/quadward.js';
 const input = (n) => (process.env['INPUT_' + n.toUpperCase().replace(/ /g, '_')] || process.env['INPUT_' + n.toUpperCase().replace(/[ -]/g, '_')] || '').trim();
 export function run(env = process.env, cwd = env.GITHUB_WORKSPACE || process.cwd()) {
-  const dir = path.resolve(cwd, input('report-dir') || 'agentshield-report'); fs.mkdirSync(dir, { recursive: true });
+  const dir = path.resolve(cwd, input('report-dir') || 'quadward-report'); fs.mkdirSync(dir, { recursive: true });
   const args = ['bench', '--policy', input('policy') || 'balanced', '--out', path.join(dir, 'report.json'), '--md', path.join(dir, 'report.md'), '--html', path.join(dir, 'report.html')];
   if (input('baseline')) args.push('--baseline', input('baseline'));
   if (input('min-stop-rate')) args.push('--min-stop', input('min-stop-rate'));
@@ -20,4 +20,4 @@ export function run(env = process.env, cwd = env.GITHUB_WORKSPACE || process.cwd
   if (code === 1 && input('fail-on-gate').toLowerCase() === 'false') { console.log('::warning::The gate failed, but fail-on-gate is false.'); return 0; }
   return code;
 }
-if (process.env.GITHUB_ACTIONS || process.env.AGENTSHIELD_ACTION_RUN) process.exitCode = run();
+if (process.env.GITHUB_ACTIONS || process.env.QUADWARD_ACTION_RUN) process.exitCode = run();

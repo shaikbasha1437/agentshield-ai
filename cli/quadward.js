@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/* AgentShield CLI: run the attack benchmark against a policy, gate on regressions, validate and test policies,
-   and check a single input. Usage: node cli/agentshield.js <command> [options]. Runs fully offline. */
+/* Quadward CLI: run the attack benchmark against a policy, gate on regressions, validate and test policies,
+   and check a single input. Usage: node cli/quadward.js <command> [options]. Runs fully offline. */
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 import { parsePolicy, PRESETS, runPolicyTests, detect, createGuard } from '../lib/index.js';
 import { runBenchmarkSync, gate, compareReports } from '../bench/run.js';
 import { reportToMarkdown, reportToHtml, ci } from '../bench/report.js';
 
-export const HELP = `agentshield <command> [options]
+export const HELP = `quadward <command> [options]
 
   bench     --policy <file|preset> [--baseline report.json] [--min-stop 0.8] [--max-fp 0.1]
             [--tolerance 0.02] [--out report.json] [--md report.md] [--html report.html]

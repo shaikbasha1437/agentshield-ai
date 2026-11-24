@@ -3,7 +3,7 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentshield-guardrails"
+name = "quadward"
 version = "0.2.0"
 description = "Explainable guardrails for LLM agents: prompt-injection detection, hidden-text stripping, output redaction and a policy firewall for tool calls. Pure Python, same rules and verdicts as the JavaScript package."
 readme = "README.md"
@@ -29,20 +29,20 @@ yaml = ["pyyaml>=6"]
 test = ["pytest>=7", "pyyaml>=6"]
 
 [project.urls]
-Homepage = "https://github.com/shaikbasha1437/agentshield-ai"
-Source = "https://github.com/shaikbasha1437/agentshield-ai/tree/main/python"
-Issues = "https://github.com/shaikbasha1437/agentshield-ai/issues"
-Changelog = "https://github.com/shaikbasha1437/agentshield-ai/blob/main/python/CHANGELOG.md"
-Demo = "https://shaikbasha1437.github.io/agentshield-ai/"
+Homepage = "https://github.com/shaikbasha1437/quadward"
+Source = "https://github.com/shaikbasha1437/quadward/tree/main/python"
+Issues = "https://github.com/shaikbasha1437/quadward/issues"
+Changelog = "https://github.com/shaikbasha1437/quadward/blob/main/python/CHANGELOG.md"
+Demo = "https://shaikbasha1437.github.io/quadward/"
 
 [project.scripts]
-agentshield-guardrails = "agentshield_guardrails.cli:main"
+quadward = "quadward.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agentshield_guardrails"]
+packages = ["src/quadward"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/agentshield_guardrails", "tests", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+include = ["src/quadward", "tests", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

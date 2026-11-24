@@ -35,7 +35,7 @@ Result: **110 checks, 0 mismatches** (tolerance 1e-9).
 
 ## Browser verification on the live site
 
-The Playwright scripts are kept outside the repo. They ran against https://shaikbasha1437.github.io/agentshield-ai/ with fresh storage:
+The Playwright scripts are kept outside the repo. They ran against the live site (then at the project's earlier URL, before the rename to Quadward) with fresh storage:
 
 | Browser | Checks passed |
 | --- | --- |
@@ -56,7 +56,7 @@ What the checks covered:
 - **Keys:** with a fake key in live mode, the key is absent from the backup, the audit export, app state and localStorage. "Forget keys now" works.
 - **Data:** reset, then undo; the share link import (also into an already open tab); IndexedDB persistence across reloads; dark theme.
 - **Small screens:** no horizontal overflow at 375 px on every tab or in the help modal.
-- **PWA:** the service-worker cache is `agentshield-v3` and the app loads offline (Chrome).
+- **PWA:** the service-worker cache is versioned (now `quadward-v5`) and the app loads offline (Chrome).
 - **Console:** no errors.
 
 ## CI and Pages
@@ -68,7 +68,7 @@ What the checks covered:
 ## Packages, parity and paper
 
 - **npm package (`lib/`):**
-  - `npm pack` builds `agentshield-guardrails-0.2.0.tgz` with 23 files.
+  - `npm pack` builds `quadward-0.2.0.tgz` with 23 files.
   - Installed from that tarball, it loads with `import` (including the `/injection` subpath) and with `require()` on Node 24.
   - A TypeScript consumer type-checks against `index.d.ts` with `--strict --module nodenext`.
   - `test/package.test.js` checks that the declared exports match the runtime exports.

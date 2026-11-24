@@ -26,7 +26,7 @@ test('proxy: forwards clean requests, blocks injections, redacts output, holds r
   assert.equal(tc.body.choices[0].message.tool_calls, undefined); assert.equal(tc.body.choices[0].finish_reason, 'stop'); assert.equal(tc.body.guardrails.blocked[0].tool, 'run_sql');
   const apId = tc.body.guardrails.pending[0].approvalId; assert.ok(apId);
   assert.equal((await get(base, '/guard/approvals')).status, 401);
-  const H = { 'x-agentshield-admin': 'Bearer test-admin' };
+  const H = { 'x-quadward-admin': 'Bearer test-admin' };
   assert.equal((await get(base, '/guard/approvals', H)).body.pending.length, 1);
   assert.equal((await post(base, '/guard/approvals/' + apId + '/approve', {}, H)).body.status, 'approved');
   const again = await post(base, '/v1/chat/completions', { model: 'm', messages: [{ role: 'user', content: 'Refund order NW-1 please' }] });
@@ -44,7 +44,7 @@ test('proxy: admin routes are off without a token; server key overrides the call
   const up = await upstream(() => completion({ content: 'hi' }));
   const px = createProxy({ upstream: up.url, policy: 'strict', upstreamKey: 'server-side-test-key' }); const a = await px.listen(0); const base = 'http://127.0.0.1:' + a.port;
   t.after(async () => { await px.close(); up.s.close(); });
-  assert.equal((await get(base, '/guard/audit', { 'x-agentshield-admin': 'Bearer x' })).status, 403);
+  assert.equal((await get(base, '/guard/audit', { 'x-quadward-admin': 'Bearer x' })).status, 403);
   await post(base, '/v1/chat/completions', { messages: [{ role: 'user', content: 'hello' }] }, { authorization: 'Bearer caller' });
   assert.equal(up.seen[0].auth, 'Bearer server-side-test-key');
   assert.equal((await get(base, '/nope')).status, 404);

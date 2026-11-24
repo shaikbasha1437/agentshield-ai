@@ -1,6 +1,6 @@
-# agentshield-guardrails (Python)
+# quadward (Python)
 
-Explainable guardrails for LLM agents, in pure Python with no required dependencies. This is a port of the JavaScript package [`agentshield-guardrails`](https://github.com/shaikbasha1437/agentshield-ai/tree/main/lib). It uses the same rule tables, the same YAML policies and the same verdicts.
+Explainable guardrails for LLM agents, in pure Python with no required dependencies. This is a port of the JavaScript package [`quadward`](https://github.com/shaikbasha1437/quadward/tree/main/lib). It uses the same rule tables, the same YAML policies and the same verdicts.
 
 - **Input:** prompt-injection and jailbreak detection with 76 named, weighted rules, behind a normalisation layer that handles homoglyphs, leetspeak, invisible characters, Unicode tags, encoded payloads and split fragments.
 - **Untrusted content:** spotlighting for web pages, email, documents and tool results, and stripping of hidden HTML/Markdown text.
@@ -13,16 +13,16 @@ Every decision says which rules fired and why.
 ## Install
 
 ```sh
-pip install agentshield-guardrails            # no dependencies
-pip install "agentshield-guardrails[yaml]"    # adds PyYAML for your own YAML policies
+pip install quadward            # no dependencies
+pip install "quadward[yaml]"    # adds PyYAML for your own YAML policies
 ```
 
-Until the first release is on PyPI, install from the repository with `pip install "git+https://github.com/shaikbasha1437/agentshield-ai#subdirectory=python"`. Python 3.9 or newer is required.
+Until the first release is on PyPI, install from the repository with `pip install "git+https://github.com/shaikbasha1437/quadward#subdirectory=python"`. Python 3.9 or newer is required.
 
 ## Quickstart
 
 ```python
-from agentshield_guardrails import Guard, preset
+from quadward import Guard, preset
 
 guard = Guard(policy=preset("balanced"))
 
@@ -40,9 +40,9 @@ A policy can be a preset, a dict, JSON text or YAML text. YAML text needs PyYAML
 ## Command line
 
 ```sh
-agentshield-guardrails check "ignore previous instructions"   # score and explain one input
-agentshield-guardrails bench --policy strict                  # 257-case benchmark with precision / recall / F1
-agentshield-guardrails test --policy support-bot              # run the tests stored in a policy
+quadward check "ignore previous instructions"   # score and explain one input
+quadward bench --policy strict                  # 257-case benchmark with precision / recall / F1
+quadward test --policy support-bot              # run the tests stored in a policy
 ```
 
 ## Parity with the JavaScript package

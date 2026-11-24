@@ -258,7 +258,7 @@ def parse_policy(text: str) -> dict:
         try:
             import yaml  # type: ignore
         except ImportError:
-            return {"policy": None, "errors": [{"path": "", "line": None, "message": "YAML policies need the optional dependency: pip install 'agentshield-guardrails[yaml]'"}], "warnings": [], "raw": None}
+            return {"policy": None, "errors": [{"path": "", "line": None, "message": "YAML policies need the optional dependency: pip install 'quadward[yaml]'"}], "warnings": [], "raw": None}
         try:
             raw = yaml.safe_load(src)
         except yaml.YAMLError as e:

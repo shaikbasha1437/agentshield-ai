@@ -1,4 +1,4 @@
-/* AgentShield AI styles. Base layout, modal, toast and form styles are shared with the earlier apps by the same author. */
+/* Quadward styles. Base layout, modal, toast and form styles are shared with the earlier apps by the same author. */
 :root{--bg:#f3f6f8;--panel:#fff;--ink:#14213d;--muted:#5c6878;--line:#dce2ea;--soft:#eef1f6;--accent:#1b2340;--accent-ink:#fff;--brand:#0f8a78;--brand2:#2f6fdf;--hl:#fff4cc;--ok:#1d7a46;--warn:#a85800;--bad:#b3261e;--shadow:0 10px 40px #14213d12;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color-scheme:light}
 :root.dark{--bg:#0b1220;--panel:#121a2b;--ink:#e7ecf4;--muted:#9aa7ba;--line:#26324a;--soft:#1a2438;--accent:#4fd1bd;--accent-ink:#04201c;--brand:#4fd1bd;--brand2:#7fb0ff;--hl:#3a3313;--ok:#6fd69b;--warn:#ffb454;--bad:#ff8a80;--shadow:0 10px 40px #0007;color-scheme:dark}
 *{box-sizing:border-box}
@@ -178,7 +178,7 @@ label.button{cursor:pointer}
 @media (prefers-reduced-motion:reduce){.toast{transition:none!important}}
 .table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 .grid2>*,.panel{min-width:0}
-/* ---- AgentShield additions ---- */
+/* ---- Quadward additions ---- */
 .top nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
 .kill{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line));font-weight:650}
 .kill.on{background:var(--bad);color:#fff;border-color:var(--bad)}

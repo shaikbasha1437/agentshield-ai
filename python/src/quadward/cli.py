@@ -1,4 +1,4 @@
-"""Command line: ``agentshield-guardrails bench|check|test|presets``. Runs fully offline."""
+"""Command line: ``quadward bench|check|test|presets``. Runs fully offline."""
 from __future__ import annotations
 
 import argparse
@@ -22,7 +22,7 @@ def _load(spec: str) -> dict:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="agentshield-guardrails", description="Explainable guardrails for LLM agents.")
+    ap = argparse.ArgumentParser(prog="quadward", description="Explainable guardrails for LLM agents.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("bench", help="run the 257-case benchmark and print the metrics table")
     b.add_argument("--policy", default="balanced")

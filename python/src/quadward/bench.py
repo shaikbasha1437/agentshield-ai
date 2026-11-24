@@ -149,7 +149,7 @@ def summarize(results: list, policy: str = "policy", ms: float | None = None) ->
             c["frictionRate"] = rate(c["friction"], c["n"])
         categories.append(c)
     return {
-        "format": "agentshield-benchmark/1", "policy": policy, "totalMs": ms,
+        "format": "quadward-benchmark/1", "policy": policy, "totalMs": ms,
         "counts": {"cases": len(results), "attacks": len(atk), "benign": len(ben)},
         "attack": {"stopped": rate(sum(r["stopped"] for r in atk), len(atk)), "blocked": rate(sum(r["outcome"] == "blocked" for r in atk), len(atk)),
                    "approval": rate(sum(r["outcome"] == "approval" for r in atk), len(atk)), "flaggedOnly": sum(r["outcome"] == "flagged" for r in atk),

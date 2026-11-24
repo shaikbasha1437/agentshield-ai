@@ -1,5 +1,5 @@
 {
-  "format": "agentshield-benchmark/1",
+  "format": "quadward-benchmark/1",
   "policy": "balanced",
   "createdAt": "2026-11-19T17:19:36.703Z",
   "totalMs": 179.46023,

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Reproducible evaluation of the JavaScript package on the AgentShield benchmark.
+/* Reproducible evaluation of the JavaScript package on the Quadward benchmark.
    Usage: node scripts/eval.mjs [--preset balanced] [--json]
    Prints, for every preset (or the one given), the headline rates with 95% Wilson intervals and per-category
    precision / recall / F1. dataset/eval.py prints the same tables from the Python package and checks they match. */

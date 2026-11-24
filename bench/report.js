@@ -10,7 +10,7 @@ export const LIMITS = [
 ];
 export function reportToMarkdown(r, o = {}) {
   const L = [];
-  L.push('# AgentShield benchmark: ' + r.policy, '', 'Generated ' + r.createdAt + ' over ' + r.counts.cases + ' cases (' + r.counts.attacks + ' attacks, ' + r.counts.benign + ' benign).', '');
+  L.push('# Quadward benchmark: ' + r.policy, '', 'Generated ' + r.createdAt + ' over ' + r.counts.cases + ' cases (' + r.counts.attacks + ' attacks, ' + r.counts.benign + ' benign).', '');
   L.push('| Metric | Value (95% CI) |', '| --- | --- |');
   L.push('| Attacks stopped (blocked, held, quarantined or redacted) | ' + ci(r.attack.stopped) + ' |');
   L.push('| Attacks blocked outright | ' + ci(r.attack.blocked) + ' |');
@@ -44,5 +44,5 @@ export function reportToHtml(r, o = {}) {
     const h = /^(#{1,3}) (.*)/.exec(line); if (h) out.push('<h' + h[1].length + '>' + inline(h[2]) + '</h' + h[1].length + '>'); else if (line.trim()) out.push('<p>' + inline(line) + '</p>');
   }
   flush();
-  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AgentShield benchmark: ' + esc(r.policy) + '</title><style>body{font:15px/1.5 system-ui,sans-serif;max-width:920px;margin:2rem auto;padding:0 1rem;color:#1b1f24}table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem;display:block;overflow-x:auto}th,td{border:1px solid #d0d7de;padding:.35rem .5rem;text-align:left;vertical-align:top}th{background:#f3f5f7}h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:1.6rem}</style></head><body>' + out.join('\n') + '</body></html>';
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quadward benchmark: ' + esc(r.policy) + '</title><style>body{font:15px/1.5 system-ui,sans-serif;max-width:920px;margin:2rem auto;padding:0 1rem;color:#1b1f24}table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem;display:block;overflow-x:auto}th,td{border:1px solid #d0d7de;padding:.35rem .5rem;text-align:left;vertical-align:top}th{background:#f3f5f7}h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:1.6rem}</style></head><body>' + out.join('\n') + '</body></html>';
 }

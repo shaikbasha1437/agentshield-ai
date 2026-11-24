@@ -56,7 +56,7 @@ function buildRequest(cfg, msg) {
   if (msg.json && p === 'openai') body.response_format = { type: 'json_object' };
   const headers = { 'content-type': 'application/json' };
   if (key) headers.authorization = 'Bearer ' + key;
-  if (p === 'compatible' && /openrouter\.ai/.test(cfg.baseUrl || '')) { headers['HTTP-Referer'] = cfg.referer || 'https://shaikbasha1437.github.io/agentshield-ai/'; headers['X-Title'] = cfg.title || 'AgentShield AI'; }
+  if (p === 'compatible' && /openrouter\.ai/.test(cfg.baseUrl || '')) { headers['HTTP-Referer'] = cfg.referer || 'https://shaikbasha1437.github.io/quadward/'; headers['X-Title'] = cfg.title || 'Quadward'; }
   return { url: trimSlash(cfg.baseUrl || PROVIDERS[p].baseUrl) + '/chat/completions', init: { method: 'POST', headers, body: JSON.stringify(body) } };
 }
 function parseResponse(provider, j) {

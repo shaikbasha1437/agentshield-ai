@@ -10,9 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from agentshield_guardrails import check_urls, detect, find_sensitive, preset, run_case, scan_hidden
-from agentshield_guardrails.bench import cases
-from agentshield_guardrails.policy import PRESET_IDS
+from quadward import check_urls, detect, find_sensitive, preset, run_case, scan_hidden
+from quadward.bench import cases
+from quadward.policy import PRESET_IDS
 
 GOLDEN = Path(__file__).parent / "golden"
 

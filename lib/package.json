@@ -1,5 +1,5 @@
 {
-  "name": "agentshield-guardrails",
+  "name": "quadward",
   "version": "0.2.0",
   "description": "Explainable guardrails for LLM agents: prompt-injection and jailbreak detection, untrusted-content spotlighting, output redaction, a tool/action firewall with approvals, taint tracking and a hash-chained audit log. Zero dependencies.",
   "type": "module",
@@ -21,9 +21,9 @@
   "keywords": ["llm", "guardrails", "prompt-injection", "jailbreak", "agents", "ai-security", "mcp", "tool-calling", "openai", "anthropic"],
   "license": "MIT",
   "author": "Basha Shaik",
-  "homepage": "https://github.com/shaikbasha1437/agentshield-ai/tree/main/lib#readme",
-  "bugs": { "url": "https://github.com/shaikbasha1437/agentshield-ai/issues" },
-  "repository": { "type": "git", "url": "git+https://github.com/shaikbasha1437/agentshield-ai.git", "directory": "lib" },
+  "homepage": "https://github.com/shaikbasha1437/quadward/tree/main/lib#readme",
+  "bugs": { "url": "https://github.com/shaikbasha1437/quadward/issues" },
+  "repository": { "type": "git", "url": "git+https://github.com/shaikbasha1437/quadward.git", "directory": "lib" },
   "engines": { "node": ">=18" },
   "publishConfig": { "access": "public", "provenance": true }
 }

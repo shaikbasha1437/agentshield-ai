@@ -1,15 +1,15 @@
 {
-  "name": "agentshield-ai",
+  "name": "quadward",
   "version": "1.0.0",
   "description": "A guardrails layer for AI agents: prompt-injection detection, untrusted-content spotlighting, output redaction, a tool firewall with approvals and a hash-chained audit log, plus a playground, an attack benchmark, a proxy and a CI action.",
   "private": true,
   "type": "module",
   "license": "MIT",
   "engines": { "node": ">=18" },
-  "bin": { "agentshield": "cli/agentshield.js" },
+  "bin": { "quadward": "cli/quadward.js" },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "bench": "node cli/agentshield.js bench --policy examples/policy.balanced.yaml",
+    "bench": "node cli/quadward.js bench --policy examples/policy.balanced.yaml",
     "proxy": "node server/proxy.js"
   }
 }

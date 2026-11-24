@@ -1,5 +1,5 @@
 name: New benchmark case
-description: Propose a labelled case for AgentShield Bench.
+description: Propose a labelled case for Quadward Bench.
 labels: [dataset]
 body:
   - type: dropdown

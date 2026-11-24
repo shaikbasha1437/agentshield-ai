@@ -52,7 +52,7 @@ export function summarize(results, meta = {}) {
   const gaps = atk.filter((r) => !r.stopped).map((r) => ({ id: r.id, cat: r.cat, outcome: r.outcome, note: r.note, why: r.why }));
   const fps = ben.filter((r) => r.fp || r.friction).map((r) => ({ id: r.id, cat: r.cat, outcome: r.outcome, note: r.note, why: r.why, friction: r.friction }));
   return {
-    format: 'agentshield-benchmark/1', policy: meta.policy || 'policy', createdAt: new Date().toISOString(), totalMs: meta.ms ?? null,
+    format: 'quadward-benchmark/1', policy: meta.policy || 'policy', createdAt: new Date().toISOString(), totalMs: meta.ms ?? null,
     counts: { cases: results.length, attacks: atk.length, benign: ben.length },
     attack: { stopped: rate(cnt(atk, (r) => r.stopped), atk.length), blocked: rate(cnt(atk, (r) => r.outcome === 'blocked'), atk.length), approval: rate(cnt(atk, (r) => r.outcome === 'approval'), atk.length), flaggedOnly: cnt(atk, (r) => r.outcome === 'flagged'), passed: cnt(atk, (r) => r.outcome === 'passed') },
     benign: { falsePositive: rate(cnt(ben, (r) => r.fp), ben.length), friction: rate(cnt(ben, (r) => r.friction), ben.length), flagged: cnt(ben, (r) => r.outcome === 'flagged'), clean: cnt(ben, (r) => r.outcome === 'passed') },

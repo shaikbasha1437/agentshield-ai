@@ -41,7 +41,7 @@ const MAIN = { input: 'text', output: 'output', untrusted: 'content' };
 const mainText = (c) => (c.stage === 'conversation' ? c.turns.map((t) => (t.role || 'user') + ': ' + (t.content ?? t.text ?? '')).join('\n') : c.stage === 'tool' ? JSON.stringify(c.call) : c[MAIN[c.stage]]);
 const casesJsonl = CASES.map((c) => JSON.stringify(c)).join('\n') + '\n';
 const hfJsonl = CASES.map((c) => JSON.stringify({ id: c.id, label: c.kind === 'attack' ? 1 : 0, kind: c.kind, category: c.cat, stage: c.stage, text: mainText(c), note: c.note || '', case_json: JSON.stringify(c) })).join('\n') + '\n';
-const meta = { name: 'agentshield-bench', version: '1.0.0', cases: CASES.length, attacks: CASES.filter((c) => c.kind === 'attack').length, benign: CASES.filter((c) => c.kind === 'benign').length, attackCategories: ATTACK_CATEGORIES, benignCategories: BENIGN_CATEGORIES, systemPrompt: SYSTEM_PROMPT, canary: CANARY };
+const meta = { name: 'quadward-bench', version: '1.0.0', cases: CASES.length, attacks: CASES.filter((c) => c.kind === 'attack').length, benign: CASES.filter((c) => c.kind === 'benign').length, attackCategories: ATTACK_CATEGORIES, benignCategories: BENIGN_CATEGORIES, systemPrompt: SYSTEM_PROMPT, canary: CANARY };
 
 /* Golden verdicts for the parity test: every preset x every case, plus component-level outputs on every text in
    the benchmark. The Python test suite compares its own results with these line by line. */
@@ -68,10 +68,10 @@ const componentOf = (t) => { const d = detect(t); const du = detect(t, { source:
 const variantLines = variants.map((t) => JSON.stringify(Object.assign({ text: t }, componentOf(t))));
 const components = texts.map((t, i) => { const d = detect(t); const du = detect(t, { source: 'web' }); const h = scanHidden(t); return JSON.stringify({ i, detect: { score: d.score, verdict: d.verdict, hits: d.hits.map((x) => [x.rule, x.effective, x.layer]) }, detectUntrusted: { score: du.score, verdict: du.verdict }, hidden: { format: h.format, kinds: h.findings.map((f) => f.kind), visible: h.visible, hidden: h.hidden }, urls: checkUrls(t, { allowDomains: ['northwind.example', '*.northwind.example'] }).map((u) => [u.kind, u.url, u.host ?? null, u.issues.map((x) => x.code)]), sensitive: findSensitive(t).map((f) => [f.kind, f.start, f.end]) }); });
 const OUT = {
-  'python/src/agentshield_guardrails/data/rules.json': JSON.stringify(rules, null, 1) + '\n',
-  'python/src/agentshield_guardrails/data/presets.json': JSON.stringify(presets, null, 1) + '\n',
-  'python/src/agentshield_guardrails/data/cases.jsonl': casesJsonl,
-  'python/src/agentshield_guardrails/data/bench_meta.json': JSON.stringify(meta, null, 1) + '\n',
+  'python/src/quadward/data/rules.json': JSON.stringify(rules, null, 1) + '\n',
+  'python/src/quadward/data/presets.json': JSON.stringify(presets, null, 1) + '\n',
+  'python/src/quadward/data/cases.jsonl': casesJsonl,
+  'python/src/quadward/data/bench_meta.json': JSON.stringify(meta, null, 1) + '\n',
   'python/tests/golden/verdicts.jsonl': golden.join('\n') + '\n',
   'python/tests/golden/components.jsonl': components.join('\n') + '\n',
   'python/tests/golden/variants.jsonl': variantLines.join('\n') + '\n',

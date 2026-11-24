@@ -1,4 +1,4 @@
-// Type declarations for agentshield-guardrails. The runtime is plain JavaScript (ES modules, no dependencies).
+// Type declarations for quadward. The runtime is plain JavaScript (ES modules, no dependencies).
 
 export type Verdict = 'allow' | 'flag' | 'block';
 export type ToolAction = 'allow' | 'deny' | 'require-approval';

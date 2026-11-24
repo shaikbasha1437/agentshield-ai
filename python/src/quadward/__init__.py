@@ -1,4 +1,4 @@
-"""agentshield-guardrails: explainable guardrails for LLM agents.
+"""quadward: explainable guardrails for LLM agents.
 
 Prompt-injection and jailbreak detection, hidden-text stripping and spotlighting for untrusted content, output
 redaction and exfiltration checks, and a policy firewall for tool calls with approvals, taint tracking and a

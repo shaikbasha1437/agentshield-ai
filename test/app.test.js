@@ -48,16 +48,16 @@ test('provider module builds requests without sending anything', () => {
   const a = LLM.buildRequest({ provider: 'anthropic', key: 'test-key-123' }, { system: 's', messages: [{ role: 'user', content: 'hi' }] });
   assert.equal(a.init.headers['anthropic-dangerous-direct-browser-access'], 'true'); assert.match(a.url, /\/messages$/);
   const o = LLM.buildRequest({ provider: 'compatible', baseUrl: 'https://openrouter.ai/api/v1/', model: 'x' }, { system: 's', messages: [] });
-  assert.equal(o.url, 'https://openrouter.ai/api/v1/chat/completions'); assert.match(o.init.headers['HTTP-Referer'], /agentshield-ai/);
+  assert.equal(o.url, 'https://openrouter.ai/api/v1/chat/completions'); assert.match(o.init.headers['HTTP-Referer'], /quadward/);
   const gm = LLM.buildRequest({ provider: 'gemini', key: 'k', model: 'gemini-2.5-flash' }, { system: 's', messages: [{ role: 'user', content: 'x' }] }); assert.match(gm.url, /generateContent$/);
 });
 test('static app: eyebrow, service worker covers every module, no external scripts, offline files exist', () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'); assert.match(html, /THE GUARDRAILS LAYER/); assert.doesNotMatch(html, /<script[^>]+src="https?:/);
-  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'); assert.match(sw, /const VERSION = 'agentshield-v\d+'/);
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'); assert.match(sw, /const VERSION = 'quadward-v\d+'/);
   const files = JSON.parse(/const FILES = (\[[^\]]+\])/.exec(sw)[1].replace(/'/g, '"'));
   for (const f of files) if (f !== './') assert.ok(fs.existsSync(path.join(ROOT, f)), f);
   for (const d of ['js', 'lib', 'bench']) for (const f of fs.readdirSync(path.join(ROOT, d)).filter((x) => x.endsWith('.js'))) assert.ok(files.includes('./' + d + '/' + f), 'sw misses ' + d + '/' + f);
-  const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8')); assert.equal(man.short_name, 'AgentShield');
+  const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8')); assert.equal(man.short_name, 'Quadward');
   const app = fs.readFileSync(path.join(ROOT, 'js/app.js'), 'utf8'); assert.match(app, /scrub\(/); assert.doesNotMatch(app, /keys\]?\s*\)?\s*;?\s*\/\/\s*export/);
   assert.ok(fs.existsSync(path.join(ROOT, '.nojekyll')));
 });

@@ -1,4 +1,4 @@
-# agentshield-guardrails
+# quadward
 
 Explainable guardrails for LLM agents, in plain JavaScript with zero dependencies.
 
@@ -10,22 +10,22 @@ Explainable guardrails for LLM agents, in plain JavaScript with zero dependencie
 
 Every decision carries the rule IDs and a plain-English reason. Policies are YAML or JSON, and eight presets are included.
 
-It runs in browsers, Node 18+, Deno, Bun and edge workers. A pure-Python port, [`agentshield-guardrails` on PyPI](../python), gives identical verdicts on the full benchmark.
+It runs in browsers, Node 18+, Deno, Bun and edge workers. A pure-Python port, [`quadward` on PyPI](../python), gives identical verdicts on the full benchmark.
 
 > **What it is not:** this is a deterministic, rule-based layer. It raises the cost of common attacks and makes decisions auditable. It does not make an agent safe against an adaptive attacker. Pair it with least-privilege tools and human approval for consequential actions. See [Limitations](#limitations).
 
 ## Install
 
 ```sh
-npm install agentshield-guardrails
+npm install quadward
 ```
 
-Until the first registry release, install from the repository with `npm install github:shaikbasha1437/agentshield-ai`, or copy `lib/` into your project. It has no dependencies.
+Until the first registry release, install from the repository with `npm install github:shaikbasha1437/quadward`, or copy `lib/` into your project. It has no dependencies.
 
 ## Quickstart
 
 ```js
-import { createGuard, PRESETS } from 'agentshield-guardrails';
+import { createGuard, PRESETS } from 'quadward';
 
 const guard = createGuard({ policy: PRESETS.balanced.yaml });
 
@@ -76,19 +76,19 @@ The presets are `balanced`, `strict`, `permissive`, `support-bot`, `sql-analyst`
 
 This is an ES module package. TypeScript declarations ship in `index.d.ts`.
 
-- **Node 20.19+ / 22.12+ / 24:** `require('agentshield-guardrails')` also works, because Node loads ES modules from CommonJS.
-- **Node 18:** use `await import('agentshield-guardrails')`.
+- **Node 20.19+ / 22.12+ / 24:** `require('quadward')` also works, because Node loads ES modules from CommonJS.
+- **Node 18:** use `await import('quadward')`.
 
-Subpath imports are available for smaller bundles, for example `agentshield-guardrails/injection`, `/output`, `/firewall`, `/policy` and `/audit`. Type declarations cover the root entry point only, so import from the root in TypeScript.
+Subpath imports are available for smaller bundles, for example `quadward/injection`, `/output`, `/firewall`, `/policy` and `/audit`. Type declarations cover the root entry point only, so import from the root in TypeScript.
 
 ## Benchmark
 
 The repository includes a labelled benchmark of 257 cases (191 attacks, 66 benign) and a reproducible evaluation script. The dataset is published separately under CC-BY-4.0.
 
-On the `balanced` preset, AgentShield stops 87.4% of attacks (95% Wilson CI 82.0–91.4%) with a 4.5% false-positive rate on benign cases (CI 1.6–12.5%). The cases were written by the same author as the rules and are not an independent evaluation; see the dataset card and paper in the repository.
+On the `balanced` preset, Quadward stops 87.4% of attacks (95% Wilson CI 82.0–91.4%) with a 4.5% false-positive rate on benign cases (CI 1.6–12.5%). The cases were written by the same author as the rules and are not an independent evaluation; see the dataset card and paper in the repository.
 
 ```sh
-git clone https://github.com/shaikbasha1437/agentshield-ai && cd agentshield-ai
+git clone https://github.com/shaikbasha1437/quadward && cd quadward
 node scripts/eval.mjs        # per-category precision / recall / F1 for every preset
 ```
 

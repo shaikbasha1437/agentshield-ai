@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-message: "If you use this software or the AgentShield Bench dataset, please cite it as below."
-title: "AgentShield: stage-aware, explainable guardrails for tool-using LLM agents"
+message: "If you use this software or the Quadward Bench dataset, please cite it as below."
+title: "Quadward: stage-aware, explainable guardrails for tool-using LLM agents"
 abstract: "An open-source guardrail library (JavaScript and Python, identical verdicts) that checks user input, untrusted content, model output and tool calls with explainable rules, and a stage-labelled benchmark of 257 cases."
 type: software
 version: "0.2.0"
 date-released: "2026-11-23"
 license: MIT
-repository-code: "https://github.com/shaikbasha1437/agentshield-ai"
-url: "https://shaikbasha1437.github.io/agentshield-ai/"
+repository-code: "https://github.com/shaikbasha1437/quadward"
+url: "https://shaikbasha1437.github.io/quadward/"
 keywords:
   - prompt injection
   - LLM agents

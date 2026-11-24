@@ -12,22 +12,22 @@
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 \setlist{itemsep=0pt,topsep=2pt,parsep=0pt}
 
-\title{Stage-Aware, Explainable Guardrails for Tool-Using LLM Agents:\\An Open Rule-Based Library and a Small Labelled Benchmark}
-\author{Basha Shaik\\Independent Researcher\\\small\url{https://github.com/shaikbasha1437/agentshield-ai}}
+\title{Quadward: Stage-Aware, Explainable Guardrails\\for Tool-Using LLM Agents}
+\author{Basha Shaik\\Independent Researcher\\\small\url{https://github.com/shaikbasha1437/quadward}}
 \date{November 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Agents built on large language models (LLMs) read untrusted text and act on it with tools. As a result, a single injected sentence in a web page, an email or a tool result can turn into a payment, a deleted file or a leaked secret. We describe \emph{AgentShield}, an open-source guardrail library with identical JavaScript and Python implementations. It places deterministic, explainable checks at the four points where an agent pipeline handles text:
+Agents built on large language models (LLMs) read untrusted text and act on it with tools. As a result, a single injected sentence in a web page, an email or a tool result can turn into a payment, a deleted file or a leaked secret. We describe \emph{Quadward}, an open-source guardrail library with identical JavaScript and Python implementations. It places deterministic, explainable checks at the four points where an agent pipeline handles text:
 \begin{itemize}
 \item \textbf{the user's input}: an injection detector with a normalisation layer;
 \item \textbf{untrusted content}: spotlighting, hidden-text stripping and quarantine;
 \item \textbf{the model's output}: redaction, leak and exfiltration checks;
 \item \textbf{tool calls}: a policy firewall with human approval, rate and spend limits, and taint tracking from untrusted content to tool arguments.
 \end{itemize}
-Every decision names the rules that fired. We also release \emph{AgentShield Bench}, a stage-labelled set of 257 hand-written cases (191 attacks in 14 categories and 66 benign near-misses), together with a reproducible evaluation script. On this benchmark the default policy stops 87.4\% of attacks (95\% CI 82.0--91.4) with a 4.5\% false-positive rate (1.6--12.5). A naive keyword filter stops 12.0\%, and AgentShield's own detector without the stage-specific layers stops 54.5\%. Because the same author wrote the rules and the cases, these numbers measure coverage of known patterns, not robustness to new or adaptive attacks. We state the limitations in detail.
+Every decision names the rules that fired. We also release \emph{Quadward Bench}, a stage-labelled set of 257 hand-written cases (191 attacks in 14 categories and 66 benign near-misses), together with a reproducible evaluation script. On this benchmark the default policy stops 87.4\% of attacks (95\% CI 82.0--91.4) with a 4.5\% false-positive rate (1.6--12.5). A naive keyword filter stops 12.0\%, and Quadward's own detector without the stage-specific layers stops 54.5\%. Because the same author wrote the rules and the cases, these numbers measure coverage of known patterns, not robustness to new or adaptive attacks. We state the limitations in detail.
 \end{abstract}
 
 \section{Motivation}
@@ -68,7 +68,7 @@ The attacker knows that a guard may exist and may obfuscate payloads (encodings,
 
 \section{Design}
 \label{sec:design}
-AgentShield exposes one object, the \emph{guard}, configured by a YAML or JSON policy. It has one method per stage. Every method returns a verdict, the rule IDs that fired, a plain-English reason for each, and timing. Every decision is appended to a hash-chained (SHA-256) audit log, so that tampering with past entries is detectable.
+The name refers to its four \emph{wards}, one for each stage. Quadward exposes one object, the \emph{guard}, configured by a YAML or JSON policy. It has one method per stage. Every method returns a verdict, the rule IDs that fired, a plain-English reason for each, and timing. Every decision is appended to a hash-chained (SHA-256) audit log, so that tampering with past entries is detectable.
 
 \subsection{Input: a normalised, explainable detector}
 The detector scores text against 76 hand-written regular-expression rules in ten categories:
@@ -132,7 +132,7 @@ All of them are identical.
 
 \section{Benchmark construction}
 \label{sec:bench}
-AgentShield Bench has 257 cases. Each case is labelled with a \emph{kind} (attack or benign), a \emph{category} and a \emph{stage}: input (106), multi-turn conversation (8), untrusted content (64), model output (36) or tool call (43). The stage determines which guard method is exercised.
+Quadward Bench has 257 cases. Each case is labelled with a \emph{kind} (attack or benign), a \emph{category} and a \emph{stage}: input (106), multi-turn conversation (8), untrusted content (64), model output (36) or tool call (43). The stage determines which guard method is exercised.
 
 The 191 attacks cover 14 categories:
 \begin{itemize}
@@ -151,7 +151,7 @@ For precision, recall and F1, a benign case has no attack category, so we use \e
 \paragraph{Baselines.} We compare only against systems we run ourselves on the same cases with the same metric code:
 \begin{itemize}
 \item a \emph{keyword filter} that stops a case if any of 16 common jailbreak phrases (for example ``ignore previous instructions'', ``system prompt'' or ``developer mode'') appears anywhere in the case's text;
-\item a \emph{detector-only} ablation that runs AgentShield's input detector, with the default thresholds, over all of a case's text and has no other layer.
+\item a \emph{detector-only} ablation that runs Quadward's input detector, with the default thresholds, over all of a case's text and has no other layer.
 \end{itemize}
 We make no claims about other tools.
 
@@ -162,7 +162,7 @@ All numbers in this section are produced by \texttt{python dataset/eval.py}. The
 \begin{table}[htbp]
 \centering\small
 \input{generated/summary.tex}
-\caption{Headline results on all 257 cases. ``Stopped'' is recall over the 191 attacks. FP is the share of the 66 benign cases that were blocked, quarantined or redacted (approvals excluded). Precision and F1 are overall and count benign approvals as false positives. The eight AgentShield rows are the bundled policies. The last two rows are our baselines.}
+\caption{Headline results on all 257 cases. ``Stopped'' is recall over the 191 attacks. FP is the share of the 66 benign cases that were blocked, quarantined or redacted (approvals excluded). Precision and F1 are overall and count benign approvals as false positives. The eight Quadward rows are the bundled policies. The last two rows are our baselines.}
 \label{tab:summary}
 \end{table}
 
@@ -206,7 +206,7 @@ This is the main empirical point of the paper: most of the benefit comes from ch
 \item \emph{data that leaves through allowed channels}: an allowlisted domain, a spelled-out URL, a card number written in words, an SSN without dashes, and a look-alike punycode domain that is flagged but not stopped;
 \item \emph{semantically harmful but policy-compliant tool calls}: reading a denied file through an allowed command, sending sensitive data to an allowed internal address, and a read-only query that selects password hashes.
 \end{itemize}
-These cases were written deliberately to document the boundaries of a rule-based approach. They are the cases where a model-based classifier, which AgentShield accepts through an optional hook, or stricter tool design would be needed.
+These cases were written deliberately to document the boundaries of a rule-based approach. They are the cases where a model-based classifier, which Quadward accepts through an optional hook, or stricter tool design would be needed.
 
 \paragraph{Cost.} The guard is fast enough to run on every message. On an 8-vCPU cloud virtual machine (Node.js 24), the median time per case is 0.16\,ms for input checks, 0.47\,ms for untrusted content, 0.07\,ms for output and 0.02\,ms for tool calls; the 95th percentile is below 1\,ms for every stage. The detector uses no network and no model calls.
 
@@ -220,7 +220,6 @@ These cases were written deliberately to document the boundaries of a rule-based
 \item \textbf{Policy dependence.} Tool-stage results depend on the bundled policies. A deployment with broader tool permissions will stop less.
 \item \textbf{Synthetic text.} The cases are short, mostly English and fictional. Real pages and emails are longer and noisier. The non-English cases were not reviewed by native speakers.
 \item \textbf{Port edge cases.} The Python port matches JavaScript on every tested input. Known edge cases where they may differ are input with lone UTF-16 surrogates, characters whose Unicode category changed between the Unicode versions of the two runtimes, and internationalised domain names in URL parsing.
-\item \textbf{Name.} Several unrelated projects and papers use the name ``AgentShield''. This work is not affiliated with them.
 \end{itemize}
 
 \section{Ethics}

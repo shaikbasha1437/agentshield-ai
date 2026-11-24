@@ -1,5 +1,5 @@
-name: AgentShield guardrails benchmark
-description: Runs the AgentShield attack and benign suite against your guardrails policy and fails the job on regressions.
+name: Quadward guardrails benchmark
+description: Runs the Quadward attack and benign suite against your guardrails policy and fails the job on regressions.
 author: shaikbasha1437
 branding:
   icon: shield
@@ -32,7 +32,7 @@ inputs:
   report-dir:
     description: Folder for report.json, report.md and report.html.
     required: false
-    default: agentshield-report
+    default: quadward-report
 outputs:
   passed:
     description: '"true" when the gate passed.'

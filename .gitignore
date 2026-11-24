@@ -1,9 +1,9 @@
 node_modules/
-agentshield-report/
+quadward-report/
 *.log
 .DS_Store
 paper/arxiv/
-paper/agentshield-arxiv.tar.gz
+paper/quadward-arxiv.tar.gz
 paper/*.aux
 paper/*.log
 paper/*.out

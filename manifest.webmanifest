@@ -1,6 +1,6 @@
 {
-  "name": "AgentShield AI",
-  "short_name": "AgentShield",
+  "name": "Quadward",
+  "short_name": "Quadward",
   "description": "A guardrails layer for AI agents: prompt-injection detection, untrusted-content spotlighting, output redaction, a tool firewall with approvals and a hash-chained audit log.",
   "start_url": "./",
   "scope": "./",

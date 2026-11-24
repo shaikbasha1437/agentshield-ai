@@ -5,9 +5,9 @@ set -eu
 cd "$(dirname "$0")/.."
 python3 dataset/eval.py --latex paper/generated > /dev/null
 cd paper
-tectonic -X compile --keep-intermediates agentshield.tex
+tectonic -X compile --keep-intermediates quadward.tex
 rm -rf arxiv && mkdir -p arxiv/generated
-cp agentshield.tex refs.bib agentshield.bbl arxiv/ && cp generated/*.tex arxiv/generated/
-tar -czf agentshield-arxiv.tar.gz -C arxiv .
-rm -f agentshield.aux agentshield.log agentshield.out agentshield.blg
-echo "PDF: paper/agentshield.pdf  arXiv bundle: paper/agentshield-arxiv.tar.gz"
+cp quadward.tex refs.bib quadward.bbl arxiv/ && cp generated/*.tex arxiv/generated/
+tar -czf quadward-arxiv.tar.gz -C arxiv .
+rm -f quadward.aux quadward.log quadward.out quadward.blg
+echo "PDF: paper/quadward.pdf  arXiv bundle: paper/quadward-arxiv.tar.gz"
