@@ -10,7 +10,7 @@ Explainable guardrails for LLM agents, in plain JavaScript with zero dependencie
 
 Every decision carries the rule IDs and a plain-English reason. Policies are YAML or JSON, and eight presets are included.
 
-It runs in browsers, Node 18+, Deno, Bun and edge workers. A pure-Python port, [`quadward` on PyPI](../python), gives identical verdicts on the full benchmark.
+It runs in browsers, Node 18+, Deno, Bun and edge workers. A pure-Python port, [`quadward` on PyPI](https://pypi.org/project/quadward/), gives identical verdicts on the full benchmark.
 
 > **What it is not:** this is a deterministic, rule-based layer. It raises the cost of common attacks and makes decisions auditable. It does not make an agent safe against an adaptive attacker. Pair it with least-privilege tools and human approval for consequential actions. See [Limitations](#limitations).
 
@@ -20,7 +20,7 @@ It runs in browsers, Node 18+, Deno, Bun and edge workers. A pure-Python port, [
 npm install quadward
 ```
 
-Until the first registry release, install from the repository with `npm install github:shaikbasha1437/quadward`, or copy `lib/` into your project. It has no dependencies.
+It has no dependencies. You can also install from the repository with `npm install github:shaikbasha1437/quadward`, or copy `lib/` into your project.
 
 ## Quickstart
 
@@ -100,4 +100,4 @@ node scripts/eval.mjs        # per-category precision / recall / F1 for every pr
 
 ## Licence
 
-MIT © Basha Shaik. Report security issues privately through GitHub's "Report a vulnerability" button on the repository (see SECURITY.md).
+MIT © Basha Shaik. Report security issues privately through GitHub's "Report a vulnerability" button on the repository (see [SECURITY.md](https://github.com/shaikbasha1437/quadward/blob/main/SECURITY.md)).
