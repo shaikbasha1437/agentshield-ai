@@ -40,7 +40,7 @@ configs:
 
 Quadward Bench is a small, labelled, stage-aware benchmark for guardrails around LLM agents. It has **257 cases: 191 attacks and 66 benign look-alikes.** Each case says which point in an agent pipeline it targets: the user's input, untrusted content the agent reads, the model's output, or a tool call. A guard can therefore be scored at the stage where it would actually run.
 
-It was built to test the open-source [Quadward](https://github.com/shaikbasha1437/quadward) guardrails, and it ships with a reproducible evaluation script. It is meant as a **regression and smoke test**, not as a leaderboard; see [Limitations](#limitations).
+It was built to test the open-source [Quadward](https://github.com/shaikbasha1437/quadward) guardrails (`pip install quadward` / `npm install quadward`), and it ships with a reproducible evaluation script. It is meant as a **regression and smoke test**, not as a leaderboard; see [Limitations](#limitations).
 
 - **Licence:** CC-BY-4.0 for the data; the evaluation code is MIT.
 - **Version:** 1.0.0 (cases), exported from `bench/cases.js` in the repository.
@@ -58,7 +58,7 @@ It was built to test the open-source [Quadward](https://github.com/shaikbasha143
 ```python
 from datasets import load_dataset
 ds = load_dataset("json", data_files="data/test.jsonl", split="train")      # from a checkout
-ds = load_dataset("shaikbasha1437/quadward-bench", split="test")           # once uploaded to the Hub
+ds = load_dataset("shaikbasha1437/quadward-bench", split="test")           # from the Hugging Face Hub
 ```
 
 ## Fields
@@ -132,10 +132,14 @@ The multilingual cases are short translations of English attacks and have not be
 
 ## Evaluation
 
+From a copy of this dataset (Hugging Face or the `dataset/` folder):
+
 ```sh
-python dataset/eval.py               # runs the Python package; also runs the JS package if node is installed
-node scripts/eval.mjs                 # JS package only
+pip install quadward      # the guard, from PyPI (no dependencies)
+python eval.py            # rates, per-category precision/recall/F1, and the two baselines
 ```
+
+From a checkout of the [repository](https://github.com/shaikbasha1437/quadward), `python dataset/eval.py` also runs the JavaScript package (if Node.js is installed) and fails if the two disagree. `node scripts/eval.mjs` runs the JavaScript package on its own.
 
 A case counts as **stopped** if the guard blocked, quarantined or redacted it, or held it for a person's approval. A merely flagged case does not count.
 

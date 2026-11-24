@@ -93,7 +93,7 @@ def pct(x) -> str:
 
 def run_js(presets: list[str]) -> dict | None:
     node = shutil.which("node")
-    if not node:
+    if not node or not (ROOT / "scripts" / "eval.mjs").exists():  # e.g. a standalone copy of the dataset
         return None
     args = [node, str(ROOT / "scripts" / "eval.mjs"), "--json"]
     if len(presets) == 1:
@@ -155,7 +155,7 @@ def main(argv=None) -> int:
             print("| %s | %d | %s | %s | %s |" % (c, bal["perCategory"][c]["n"], pct(kw["perCategory"][c]["recall"]), pct(det["perCategory"][c]["recall"]), pct(bal["perCategory"][c]["recall"])))
 
     if js is None:
-        print("\nJavaScript cross-check: skipped (node not found or --no-js).")
+        print("\nJavaScript cross-check: skipped (needs Node.js and a checkout of the repository; or --no-js was given).")
     elif mismatch:
         print("\nJavaScript cross-check: MISMATCH\n" + "\n".join(mismatch))
         return 1

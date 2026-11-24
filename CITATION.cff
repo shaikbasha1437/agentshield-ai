@@ -8,6 +8,16 @@ date-released: "2026-11-23"
 license: MIT
 repository-code: "https://github.com/shaikbasha1437/quadward"
 url: "https://shaikbasha1437.github.io/quadward/"
+identifiers:
+  - type: url
+    value: "https://www.npmjs.com/package/quadward"
+    description: npm package
+  - type: url
+    value: "https://pypi.org/project/quadward/"
+    description: PyPI package
+  - type: url
+    value: "https://huggingface.co/datasets/shaikbasha1437/quadward-bench"
+    description: "Quadward Bench dataset on the Hugging Face Hub"
 keywords:
   - prompt injection
   - LLM agents
